@@ -1,0 +1,537 @@
+---
+title: "Text mining with tidy data principles"
+author: "Julia Silge"
+output: 
+  learnr::tutorial:
+    allow_skip: true
+runtime: shiny_prerendered
+description: "Learn how to use tidytext!"
+---
+
+```{r setup, include=FALSE}
+library(learnr)
+library(tidyverse)
+library(tidytext)
+library(fontawesome)
+library(here)
+library(gradethis)
+knitr::opts_chunk$set(echo = FALSE, exercise.checker = gradethis::grade_learnr)
+
+shakespeare <- read_rds(here::here("data", "shakespeare.rds"))
+tidy_shakespeare <- shakespeare %>%
+  group_by(title) %>%
+  mutate(linenumber = row_number()) %>%
+  ungroup() %>%
+  unnest_tokens(word, text)
+
+gradethis::gradethis_setup()
+```
+
+## 1. Introduction
+
+Text datasets are diverse and ubiquitous, and tidy data principles provide an approach to make text mining easier, more effective, and consistent with tools already in wide use. In this course, you will develop your text mining skills using the [tidytext](https://juliasilge.github.io/tidytext/) package in R, along with other [tidyverse](https://www.tidyverse.org/) tools. You will apply these skills in several case studies, which will allow you to: 
+
+- practice important data handling skills, 
+- learn about the ways text analysis can be applied, and 
+- extract relevant insights from real-world data.
+
+This course is organized into four case studies, each with its own dataset.
+
+### Prerequisites
+
+To get the most from this tutorial, you should have some familiarity with 
+
+## 2. Tweets across the USA {data-progressive=TRUE}
+
+### Exercise 
+
+*Here's a simple exercise with an empty code chunk provided for entering the answer.*
+
+Write the R code required to add two plus two:
+
+```{r two-plus-two, exercise=TRUE}
+
+```
+
+### Exercise with Code
+
+*Here's an exercise with some prepopulated code as well as `exercise.lines = 5` to provide a bit more initial room to work.*
+
+Now write a function that adds any two numbers and then call it:
+
+```{r add-function, exercise=TRUE, exercise.lines = 5}
+add <- function() {
+  
+}
+```
+
+## 3. Shakespeare gets sentimental {data-progressive=TRUE}
+
+> To tidy or not to tidy, that is the question.
+
+<iframe src="https://giphy.com/embed/10pVeIaRAbekUw" width="480" height="336" frameBorder="0" class="giphy-embed" allowFullScreen></iframe><p><a href="https://giphy.com/gifs/pri-shakespeare-studio-360-10pVeIaRAbekUw">via GIPHY</a></p>
+
+In the first case study of this course, you learned about how to transform text data into a tidy format, with one token per row, and how to summarize and visualize the results. Our second case study in this course uses a dataset of classic plays by Shakespeare, made available by [Project Gutenberg](https://www.gutenberg.org/). We will again tidy the text, and we will learn how to implement **sentiment analysis**.
+
+The dataset is available for you to explore as a tibble called `shakespeare`, and there are three columns. 
+
+- The first column gives you the `title` of the play, such as _Much Ado about Nothing_.
+- The next gives you the `genre` of play it is, either tragedy or comedy.
+- The last column gives you `text` from that play, one line at a time. 
+
+*As you work through this case study, you might notice that you are dealing with text in a pretty raw form. There are copyright notices about the particular electronic version we downloaded and other front matter included.*
+
+### The game's afoot!
+
+Modify the following code to find out how many lines of tragedy vs. comedy text we have:
+
+```{r count-genre, exercise=TRUE, exercise.eval=TRUE}
+shakespeare %>%
+  count(title)
+```
+
+```{r count-genre-solution}
+shakespeare %>%
+  count(genre)
+```
+
+```{r count-genre-check}
+grade_code("There are six plays in this dataset, and we have slightly more total lines of text from the tragedies than from the comedies.")
+```
+
+### To be, or not to be
+
+Now use `count()` with **two** variables (separate by a comma) so you can see which titles are tragedies and which are comedies:
+
+```{r count-title-genre, exercise=TRUE, warning=FALSE, message=FALSE, error=FALSE}
+shakespeare %>%
+  count(___)
+```
+
+```{r count-title-genre-solution}
+shakespeare %>%
+  count(genre, title)
+```
+
+```{r count-title-genre-check}
+grade_code(correct = "We have three comedies, and three tragedies.")
+```
+
+### Unnesting from text to word
+
+The `shakespeare` dataset is not yet compatible with tidy tools. You need to first break the text into individual tokens, like you learned in the first case study. There are **three** verbs to add to add to this analysis pipeline:
+
+- group by `title`, so that you can add a line number to count up the lines spoken in each play
+- tokenize and tidy the text using `unnest_tokens()`
+- count the words so you can see which are most common in these Shakespeare plays
+
+
+```{r tidy-shakespeare, exercise=TRUE, warning=FALSE, message=FALSE, error=FALSE}
+tidy_shakespeare <- shakespeare %>%
+  # group by the titles of the plays
+  ___(title) %>%
+  # define a new column `linenumber`
+  mutate(linenumber = row_number()) %>%
+  ungroup() %>%
+  # transform the non-tidy text data to tidy text data
+  ___(word, text)
+
+tidy_shakespeare %>% 
+  # count to find out how many times each word is used
+  ___(word, sort = TRUE)
+```
+
+```{r tidy-shakespeare-solution}
+tidy_shakespeare <- shakespeare %>%
+  # group by the titles of the plays
+  group_by(title) %>%
+  # define a new column `linenumber`
+  mutate(linenumber = row_number()) %>%
+  ungroup() %>%
+  # transform the non-tidy text data to tidy text data
+  unnest_tokens(word, text)
+
+tidy_shakespeare %>% 
+  # count to find out how many times each word is used
+  count(word, sort = TRUE)
+```
+
+```{r tidy-shakespeare-check}
+grade_code(correct = 'Notice how the most common words in the data frame are words like "the", "and", and "i" that are not particularly meaningful or specific to these plays. We could remove these stop words like we did in the first case study.')
+```
+
+### Sentiment lexicons
+
+Sentiment analysis is a way to measure the attitudes and opinions expressed in text, and can be approached in multiple ways. A common approach is to use **sentiment lexicons**, lists of words that have been curated and scored in some way. Lexicons are typically created by NLP researchers and some have licenses that restrict their use, for example in commercial settings. The `"bing"` lexicon of Hu and Liu (2004) is a general purpose English lexicon (which can be used in commercial settings with attribution) that categorizes words as either positive or negative.
+
+```{r lexicon, exercise=TRUE, exercise.eval=TRUE}
+get_sentiments("bing")
+```
+
+Sentiment lexicons include many words, but some words are unlikely to be found in a sentiment lexicon or dictionary.
+
+```{r sentiment-quiz}
+quiz(
+  question('Which of the following words is most unlikely to be found in a sentiment lexicon?',
+           answer("pessimism"),
+           answer("and", correct = TRUE),
+           answer("peace"),
+           answer("merry"),
+           answer("repulsion"),
+           allow_retry = TRUE,
+           random_answer_order = TRUE,
+           incorrect = "Incorrect. Sentiment lexicons include words that express emotions and opinions, like this one. Which of these words is the most neutral?",
+           correct = "Correct! A word like \"and\" is neutral and unlikely to be included in a sentiment lexicon."
+  )
+)
+```
+
+### Sentiment analysis via an `inner_join()`
+
+When text data is in a tidy data structure like we are working with in this tutorial, with one word per row, you can perform sentiment analysis using an inner join, like you may have worked with in SQL or in [dplyr](https://dplyr.tidyverse.org/). Remember that the sentiment lexicon you just saw is a data frame with one word per row. When your text data is also stored in that form, with one word per row, then the result of an inner join between those two datasets will give you all the words that are both in the text you are analyzing and the lexicon.
+
+Let's say you have the following text dataset, available in your environment as `text`:
+
+```{r}
+tibble(word = c("chocolate", "makes", "me", "happy",
+                "but", "this", "movie", "is", "sad"))
+```
+
+And the following sentiment lexicon, in your environment as `lexicon`:
+
+```{r}
+tibble(word = c("happy", "sad", "chocolate", "broccoli"))
+```
+
+```{r chocolate-quiz}
+quiz(
+  question('Which word will be in the output of an inner join between this text dataset and this sentiment lexicon?',
+           answer("movie"),
+           answer("chocolate", correct = TRUE),
+           answer("broccoli"),
+           answer("me"),
+           allow_retry = TRUE,
+           random_answer_order = TRUE,
+           incorrect = "Incorrect. This word will not be in the output of an inner join.",
+           correct = "Correct! The word \"chocolate\" is in both the text dataset and the lexicon."
+  )
+)
+```
+
+Using tidy data principles for sentiment analysis is convenient not only for implementing the analysis itself, but for understanding the results in detail. Let's walk through what that can look like with the Shakespearean plays.
+
+### Sentiment analysis of Shakespeare 
+
+After transforming the text of these Shakespearean plays to a tidy text dataset in a previous exercise, the resulting data frame `tidy_shakespeare` is ready for sentiment analysis. Once you have performed the sentiment analysis, you can find out how many negative and positive words each play has with just one line of code.
+
+- Use the correct kind of join to implement sentiment analysis.
+- Add the `"bing"` lexicon as the argument to the join function.
+- Find how many positive and negative words each play has by using two arguments in `count()`.
+
+
+```{r shakespeare-sentiment, exercise=TRUE, warning=FALSE, message=FALSE, error=FALSE}
+shakespeare_sentiment <- tidy_shakespeare %>%
+  # implement sentiment analysis with the "bing" lexicon
+  ___(get_sentiments(___)) 
+
+shakespeare_sentiment %>%
+  # find how many positive/negative words each play has
+  ___(___)
+```
+
+```{r shakespeare-sentiment-solution}
+shakespeare_sentiment <- tidy_shakespeare %>%
+  # implement sentiment analysis with the "bing" lexicon
+  inner_join(get_sentiments("bing")) 
+
+shakespeare_sentiment %>%
+  # find how many positive/negative words each play has
+  count(title, sentiment)
+```
+
+```{r shakespeare-sentiment-check}
+grade_code(correct = 'When text is in a tidy data structure, sentiment analysis can be implemented with an inner join.')
+```
+
+### Tragedy or comedy?
+
+> But soft! What light through yonder window breaks? It is the number of sentiment words you just calculated, and you are on the path to comparing which plays have proportionally more positive or negative words.
+
+Which plays have a higher percentage of negative words? Do the tragedies have more negative words than the comedies?
+
+**First,** calculate how many negative and positive words each play used.
+
+- Implement sentiment analysis using the `"bing"` lexicon.
+- Use `count()` to find the number of words for each combination of `title`, `genre,` and `sentiment`.
+
+**Next,** find the percentage of negative words for each play.
+
+- Group by the titles of the plays.
+- Find the total number of words in each play using `sum()`.
+- Calculate a `percent` for each play that is the number of words of each sentiment divided by the total words in that play.
+- Filter the results for only `"negative"` sentiment.
+
+```{r shakespeare-percent, exercise=TRUE, warning=FALSE, message=FALSE, error=FALSE}
+sentiment_counts <- tidy_shakespeare %>%
+  # implement sentiment analysis using the "bing" lexicon
+  ___ %>%
+  # count the number of words by title, genre, and sentiment
+  ___
+
+sentiment_counts %>%
+  # group by the `title` of the plays
+  group_by(___) %>%
+  # find the total number of words in each play
+  mutate(total = ___,
+         # calculate the number of words divided by the total
+         percent = n / total) %>%
+  # filter the results for only negative sentiment
+  filter(___) %>%
+  arrange(percent)
+```
+
+```{r shakespeare-percent-solution}
+sentiment_counts <- tidy_shakespeare %>%
+  # implement sentiment analysis using the "bing" lexicon
+  inner_join(get_sentiments("bing")) %>%
+  # count the number of words by title, genre, and sentiment
+  count(title, genre, sentiment)
+
+sentiment_counts %>%
+  # group by the titles of the plays
+  group_by(title) %>%
+  # find the total number of words in each play
+  mutate(total = sum(n),
+         # calculate the number of words divided by the total
+         percent = n / total) %>%
+  # filter the results for only negative sentiment
+  filter(sentiment == "negative") %>%
+  arrange(percent)
+```
+
+```{r shakespeare-percent-check}
+grade_code(correct = "Looking at the `percent` column of your output, you can see that tragedies do in fact have a higher percentage of negative words.")
+```
+
+### Most common positive and negative words
+
+You found in the previous exercise that Shakespeare's tragedies use proportionally more negative words than the comedies. Now you can explore which specific words are driving these sentiment scores. Which are the most common positive and negative words in these plays?
+
+There are **three** steps in the code in this exercise. The first step counts how many times each word is used, the second step takes the top 10 most-used positive and negative words, and the final step makes a plot to visualize this result.
+
+- Implement sentiment analysis using the `"bing"` lexicon.
+- Use `count()` to find word counts by `sentiment`.
+- Group by `sentiment` so you can take the top 10 words in each sentiment.
+- Notice what the line `mutate(word = reorder(word, n))` does; it converts `word` from a character that would be plotted in alphabetical order to a factor that will be plotted in order of `n`.
+
+Now you can make a visualization of `top_words` using [ggplot2](https://ggplot2.tidyverse.org/) to see these results.
+
+- Put `n` on the x-axis and `word` on the y-axis.
+- Use `geom_col()` to make a bar chart.
+
+
+```{r shakespeare-common-plot, exercise=TRUE, warning=FALSE, message=FALSE, error=FALSE}
+word_counts <- tidy_shakespeare %>%
+  # implement sentiment analysis using the "bing" lexicon
+  ___ %>%
+  # count by word and sentiment
+  ___
+
+top_words <- word_counts %>%
+  # group by sentiment
+  ___ %>%
+  # take the top 10 for each sentiment
+  slice_max(n, n = 10) %>%
+  ungroup() %>%
+  # make word a factor in order of n
+  mutate(word = reorder(word, n))
+
+# Use aes() to put n on the x-axis and word on the y-axis
+ggplot(___, aes(___, ___, fill = sentiment)) +
+  # make a bar chart with geom_col()
+  ___(show.legend = FALSE) +
+  facet_wrap(~ sentiment, scales = "free")
+```
+
+```{r shakespeare-common-plot-solution}
+word_counts <- tidy_shakespeare %>%
+  # implement sentiment analysis using the "bing" lexicon
+  inner_join(get_sentiments("bing")) %>%
+  # count by word and sentiment
+  count(word, sentiment)
+
+top_words <- word_counts %>%
+  # group by sentiment
+  group_by(sentiment) %>%
+  # take the top 10 for each sentiment
+  slice_max(n, n = 10) %>%
+  ungroup() %>%
+  # make word a factor in order of n
+  mutate(word = reorder(word, n))
+
+# Use aes() to put n on the x-axis and words on the y-axis
+ggplot(top_words, aes(n, word, fill = sentiment)) +
+  # make a bar chart with geom_col()
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ sentiment, scales = "free")
+```
+
+```{r shakespeare-common-plot-check}
+grade_code(correct = "Death is pretty negative and love is positive, but are there words in that list that had different connotations during Shakespeare's time? Do you see a word that the lexicon has misidentified?")
+```
+
+
+### Which word was misidentified?
+
+In the last exercise, you found the top 10 words that contributed most to negative sentiment in these Shakespearean plays, but lexicons are not always foolproof tools for use with all kinds of text. 
+
+```{r shakespeare-quiz}
+quiz(
+  question('Which of those top 10 "negative"" words used by Shakespeare was misidentified as negative by the sentiment lexicon?',
+           answer("death"),
+           answer("wilt", correct = TRUE),
+           answer("poor"),
+           answer("fear"),
+           answer("die"),
+           allow_retry = TRUE,
+           random_answer_order = TRUE,
+           incorrect = "Incorrect. That is a negative word correctly identified by the sentiment lexicon. Which one is an archaic version of a different word used today?",
+           correct = "The word \"wilt\" was used differently in Shakespeare's time and was not negative; the lexicon has misidentified it. For example, from *Romeo and Juliet*, \"For thou wilt lie upon the wings of night\". It is important to explore the details of how words were scored when performing sentiment analyses."
+  )
+)
+```
+
+
+### Sentiment changes through a play
+
+In the last set of exercises in this case study, you will examine how sentiment changes through the narrative arcs of these Shakespearean plays. We will start by first implementing sentiment analysis using `inner_join()`, and then use `count()` with **four** arguments:
+
+- `title`,
+- `genre`,
+- an `index` that will section together lines of the play, and
+- `sentiment`.
+
+After these lines of code, you will have the number of positive and negative words used in each `index`-ed section of the play. These sections will be 70 lines long in your analysis here. 
+
+_You want a chunk of text that is not too small (because then the sentiment changes will be very noisy) and not too big (because then you will not be able to see plot structure). In an analysis of this type you may need to experiment with what size chunks to make; sections of 70 lines works well for these plays._
+
+- Implement sentiment analysis using the `"bing"` lexicon.
+- Use `count()` to find the number of words for each sentiment used in each play in sections, using four arguments.
+  - The first argument for `count()` maps to the plays themselves.
+  - The second argument keeps track of whether the play is a comedy or tragedy.
+  - The third argument is defined by you; call it `index` and set it equal to `linenumber %/% 70`. This `index` makes chunks of text that are 70 lines long using integer division (`%/%`).
+  - The fourth argument maps to the different `sentiment` categories.
+
+
+```{r shakespeare-count-four, exercise=TRUE, warning=FALSE, message=FALSE, error=FALSE}
+tidy_shakespeare %>%
+  # implement sentiment analysis using "bing" lexicon
+  ___ %>%
+  # count using four arguments
+  ___
+```
+
+```{r shakespeare-count-four-solution}
+tidy_shakespeare %>%
+  # implement sentiment analysis using "bing" lexicon
+  inner_join(get_sentiments("bing")) %>%
+  # count using four arguments
+  count(title, genre, index = linenumber %/% 70, sentiment)
+```
+
+```{r shakespeare-count-four-check}
+grade_code(correct = "This is the first step in looking at narrative arcs. Once more unto the breach, dear friends!")
+```
+
+
+### Visualizing narrative arcs
+
+Now you will build on the code from the previous exercise and continue to move forward to see how sentiment changes through these Shakespearean plays.
+
+- Use `pivot_wider()` from [tidyr](https://tidyr.tidyverse.org/) to pivot `sentiment` and `n` to multiple columns.
+- Make a new column using `mutate()` that computes the net sentiment by subtracting `negative` sentiment from `positive`.
+- Put `index` on the x-axis, `sentiment` on the y-axis, and use `genre` for `fill`.
+- Use `geom_col()` to make a bar chart.
+- Call `facet_wrap()` to make a separate panel for each title.
+
+**SPOILER ALERT:** It doesn't look like Romeo and Juliet are going to have a happy ending!!!
+
+```{r shakespeare-arcs, out.width='100%', fig.width=8, exercise=TRUE, warning=FALSE, message=FALSE, error=FALSE}
+tidy_shakespeare %>%
+  inner_join(get_sentiments("bing")) %>%
+  count(title, genre, index = linenumber %/% 70, sentiment) %>%
+  # pivot sentiment and n wider
+  ___(names_from = sentiment, values_from = n, values_fill = 0) %>%
+  # use mutate to compute net sentiment
+  ___(sentiment = ___ - ___) %>%
+  # put index on x-axis, sentiment on y-axis, and map comedy/tragedy to fill
+  ggplot(aes(___)) +
+  # make a bar chart with geom_col()
+  ___ +
+  # make small multiples for each title with facet_wrap()
+  ___(~ title, scales = "free_x")
+```
+
+```{r shakespeare-arcs-solution}
+tidy_shakespeare %>%
+  inner_join(get_sentiments("bing")) %>%
+  count(title, genre, index = linenumber %/% 70, sentiment) %>%
+  # pivot sentiment and n wider
+  pivot_wider(names_from = sentiment, values_from = n, values_fill = 0) %>%
+  # use mutate to compute net sentiment
+  mutate(sentiment = positive - negative) %>%
+  # put index on x-axis, sentiment on y-axis, and map comedy/tragedy to fill
+  ggplot(aes(index, sentiment, fill = genre)) +
+  # make a bar chart with geom_col()
+  geom_col() +
+  # make small multiples for each title with facet_wrap()
+  facet_wrap(~ title, scales = "free_x")
+```
+
+```{r shakespeare-arcs-check}
+grade_code(correct = "These plots show how sentiment changes through these plays. Notice how the comedies have happier endings and more positive sentiment overall than the tragedies.")
+```
+
+
+## 4. Analyzing TV news {data-progressive=TRUE}
+
+<iframe src="https://giphy.com/embed/cI5CL3l9kZ62w0Kh3c" width="480" height="267" frameBorder="0" class="giphy-embed" allowFullScreen></iframe><p><a href="https://giphy.com/gifs/snl-saturday-night-live-season-44-cI5CL3l9kZ62w0Kh3c">via GIPHY</a></p>
+
+
+
+### Quiz
+
+*You can include any number of single or multiple choice questions as a quiz. Use the `question` function to define a question and the `quiz` function for grouping multiple questions together.*
+
+Some questions to verify that you understand the purposes of various base and recommended R packages:
+
+## 5. Singing a different tune {data-progressive=TRUE}
+
+<iframe src="https://giphy.com/embed/cj3AKwbWXjjKCm9sQs" width="480" height="352" frameBorder="0" class="giphy-embed" allowFullScreen></iframe><p><a href="https://giphy.com/gifs/edsullivanshow-crickets-buddyholly-buddyhollyandthecrickets-cj3AKwbWXjjKCm9sQs">via GIPHY</a></p>
+
+
+### Quiz
+
+*You can include any number of single or multiple choice questions as a quiz. Use the `question` function to define a question and the `quiz` function for grouping multiple questions together.*
+
+Some questions to verify that you understand the purposes of various base and recommended R packages:
+
+## 6. Going further
+
+Congratulations! You have finished these four case studies and learned so much about how to analyze text data with tidy data principles. There are resources available for you to **extend your learning**.
+
+### Learn more about exploratory data analysis for text
+
+To dive deeper into how to summarize, visualize, and thoroughly explore text data, check out my book [*Text Mining with R: A Tidy Approach*](https://www.tidytextmining.com/) with my coauthor David Robinson.
+
+### Learn about supervised machine learning for text
+
+To learn how to build reliable and appropriate machine learning models with text data, check out my book [*Supervised Machine Learning for Text Analysis in R*](https://smltar.com/) with my coauthor Emil Hvitfeldt.
+
+### Explore other approaches to text analysis in R
+
+Using the tidytext package isn't the only way to approach your text analysis needs. Other R packages I have used and like include [quanteda](https://quanteda.io/), [cleanNLP](https://statsmaths.github.io/cleanNLP/), and [spacyr](http://spacyr.quanteda.io/). The [CRAN task view on natural language processing](https://cran.r-project.org/web/views/NaturalLanguageProcessing.html) contains many more R packages.
+
+### Learn more about learnr
+
+This tutorial was made with the learnr package in R. See the learnr introduction and some example tutorials here: https://rstudio.github.io/learnr/

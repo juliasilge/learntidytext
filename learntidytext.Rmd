@@ -12,10 +12,10 @@ description: "Learn how to use tidytext!"
 library(learnr)
 library(tidyverse)
 library(tidytext)
-library(fontawesome)
 library(here)
 library(gradethis)
 knitr::opts_chunk$set(echo = FALSE, exercise.checker = gradethis::grade_learnr)
+theme_set(theme_light())
 
 shakespeare <- read_rds(here::here("data", "shakespeare.rds"))
 tidy_shakespeare <- shakespeare %>%
@@ -24,22 +24,57 @@ tidy_shakespeare <- shakespeare %>%
   ungroup() %>%
   unnest_tokens(word, text)
 
-gradethis::gradethis_setup()
+nyt_headlines <- read_rds(here::here("data", "nyt_headlines.rds"))
+tidy_nyt <- nyt_headlines %>% unnest_tokens(word, headline)
+
+song_lyrics <- read_rds(here::here("data", "song_lyrics.rds"))
+tidy_lyrics <- song_lyrics %>% unnest_tokens(word, lyrics)
 ```
 
 ## 1. Introduction
 
-Text datasets are diverse and ubiquitous, and tidy data principles provide an approach to make text mining easier, more effective, and consistent with tools already in wide use. In this course, you will develop your text mining skills using the [tidytext](https://juliasilge.github.io/tidytext/) package in R, along with other [tidyverse](https://www.tidyverse.org/) tools. You will apply these skills in several case studies, which will allow you to: 
+[![tidytext](images/tidytext.png)](https://juliasilge.shinyapps.io/learntidytext/)
+
+Text datasets are diverse and ubiquitous, and tidy data principles provide an approach to make text mining easier, more effective, and consistent with tools already in wide use. In this tutorial, you will develop your text mining skills using the [tidytext](https://juliasilge.github.io/tidytext/) package in R, along with other [tidyverse](https://www.tidyverse.org/) tools. You will apply these skills in several case studies, which will allow you to: 
 
 - practice important data handling skills, 
 - learn about the ways text analysis can be applied, and 
 - extract relevant insights from real-world data.
 
-This course is organized into four case studies, each with its own dataset.
+### Working through this tutorial
+
+Throughout this tutorial, you will see code exercises that look like this:
+
+```{r library-tidytext, exercise=TRUE}
+# load the tidytext package
+
+```
+
+```{r library-tidytext-solution}
+# load the tidytext package
+library(tidytext)
+```
+
+```{r library-tidytext-check}
+grade_code("Be sure to click \"Submit Answer \" on exercises throughout the tutorial because there are hints, answers, and other content available to you after you submit.")
+```
+
+You can type in these code exercises. Give it a try now! If you mess up, click "Start Over" to get back to the original state. Use the "Run Code" button to see what happens, and click on "Solution" to check out the solution.
+
+In the exercise above, type `library(tidytext)` and click "Submit Answer".
+
+This tutorial is organized into four case studies, each with its own dataset:
+
+- tktk
+- a collection of comedies and tragedies by Shakespeare
+- one month of newspaper headlines
+- song lyrics spanning five decades
+
+These case studies demonstrate how you can use text analysis techniques with diverse kinds of text!
 
 ### Prerequisites
 
-To get the most from this tutorial, you should have some familiarity with 
+To get the most from this tutorial, you should have some familiarity with R and [tidyverse](https://www.tidyverse.org/) functions like those from dplyr and ggplot2. If you have read [*R for Data Science*](https://r4ds.had.co.nz/) by Hadley Wickham and Garrett Grolemund, you are good to go!
 
 ## 2. Tweets across the USA {data-progressive=TRUE}
 
@@ -71,7 +106,7 @@ add <- function() {
 
 <iframe src="https://giphy.com/embed/10pVeIaRAbekUw" width="480" height="336" frameBorder="0" class="giphy-embed" allowFullScreen></iframe><p><a href="https://giphy.com/gifs/pri-shakespeare-studio-360-10pVeIaRAbekUw">via GIPHY</a></p>
 
-In the first case study of this course, you learned about how to transform text data into a tidy format, with one token per row, and how to summarize and visualize the results. Our second case study in this course uses a dataset of classic plays by Shakespeare, made available by [Project Gutenberg](https://www.gutenberg.org/). We will again tidy the text, and we will learn how to implement **sentiment analysis**.
+In the first case study of this tutorial, you learned about how to transform text data into a tidy format, with one token per row, and how to summarize and visualize the results. Our second case study uses a dataset of classic plays by Shakespeare, made available by [Project Gutenberg](https://www.gutenberg.org/). We will again tidy the text, and we will learn how to implement **sentiment analysis**.
 
 The dataset is available for you to explore as a tibble called `shakespeare`, and there are three columns. 
 
@@ -128,12 +163,9 @@ The `shakespeare` dataset is not yet compatible with tidy tools. You need to fir
 
 ```{r tidy-shakespeare, exercise=TRUE, warning=FALSE, message=FALSE, error=FALSE}
 tidy_shakespeare <- shakespeare %>%
-  # group by the titles of the plays
   ___(title) %>%
-  # define a new column `linenumber`
   mutate(linenumber = row_number()) %>%
   ungroup() %>%
-  # transform the non-tidy text data to tidy text data
   ___(word, text)
 
 tidy_shakespeare %>% 
@@ -143,12 +175,9 @@ tidy_shakespeare %>%
 
 ```{r tidy-shakespeare-solution}
 tidy_shakespeare <- shakespeare %>%
-  # group by the titles of the plays
   group_by(title) %>%
-  # define a new column `linenumber`
   mutate(linenumber = row_number()) %>%
   ungroup() %>%
-  # transform the non-tidy text data to tidy text data
   unnest_tokens(word, text)
 
 tidy_shakespeare %>% 
@@ -171,18 +200,16 @@ get_sentiments("bing")
 Sentiment lexicons include many words, but some words are unlikely to be found in a sentiment lexicon or dictionary.
 
 ```{r sentiment-quiz}
-quiz(
-  question('Which of the following words is most unlikely to be found in a sentiment lexicon?',
-           answer("pessimism"),
-           answer("and", correct = TRUE),
-           answer("peace"),
-           answer("merry"),
-           answer("repulsion"),
-           allow_retry = TRUE,
-           random_answer_order = TRUE,
-           incorrect = "Incorrect. Sentiment lexicons include words that express emotions and opinions, like this one. Which of these words is the most neutral?",
-           correct = "Correct! A word like \"and\" is neutral and unlikely to be included in a sentiment lexicon."
-  )
+question('Which of the following words is most unlikely to be found in a sentiment lexicon?',
+         answer("pessimism"),
+         answer("and", correct = TRUE),
+         answer("peace"),
+         answer("merry"),
+         answer("repulsion"),
+         allow_retry = TRUE,
+         random_answer_order = TRUE,
+         incorrect = "Incorrect. Sentiment lexicons include words that express emotions and opinions, like this one. Which of these words is the most neutral?",
+         correct = "Correct! A word like \"and\" is neutral and unlikely to be included in a sentiment lexicon."
 )
 ```
 
@@ -204,17 +231,15 @@ tibble(word = c("happy", "sad", "chocolate", "broccoli"))
 ```
 
 ```{r chocolate-quiz}
-quiz(
-  question('Which word will be in the output of an inner join between this text dataset and this sentiment lexicon?',
-           answer("movie"),
-           answer("chocolate", correct = TRUE),
-           answer("broccoli"),
-           answer("me"),
-           allow_retry = TRUE,
-           random_answer_order = TRUE,
-           incorrect = "Incorrect. This word will not be in the output of an inner join.",
-           correct = "Correct! The word \"chocolate\" is in both the text dataset and the lexicon."
-  )
+question('Which word will be in the output of an inner join between this text dataset and this sentiment lexicon?',
+         answer("movie"),
+         answer("chocolate", correct = TRUE),
+         answer("broccoli"),
+         answer("me"),
+         allow_retry = TRUE,
+         random_answer_order = TRUE,
+         incorrect = "Incorrect. This word will not be in the output of an inner join.",
+         correct = "Correct! The word \"chocolate\" is in both the text dataset and the lexicon."
 )
 ```
 
@@ -279,11 +304,9 @@ sentiment_counts <- tidy_shakespeare %>%
   ___
 
 sentiment_counts %>%
-  # group by the `title` of the plays
   group_by(___) %>%
   # find the total number of words in each play
   mutate(total = ___,
-         # calculate the number of words divided by the total
          percent = n / total) %>%
   # filter the results for only negative sentiment
   filter(___) %>%
@@ -298,11 +321,9 @@ sentiment_counts <- tidy_shakespeare %>%
   count(title, genre, sentiment)
 
 sentiment_counts %>%
-  # group by the titles of the plays
   group_by(title) %>%
   # find the total number of words in each play
   mutate(total = sum(n),
-         # calculate the number of words divided by the total
          percent = n / total) %>%
   # filter the results for only negative sentiment
   filter(sentiment == "negative") %>%
@@ -332,7 +353,6 @@ Now you can make a visualization of `top_words` using [ggplot2](https://ggplot2.
 
 ```{r shakespeare-common-plot, exercise=TRUE, warning=FALSE, message=FALSE, error=FALSE}
 word_counts <- tidy_shakespeare %>%
-  # implement sentiment analysis using the "bing" lexicon
   ___ %>%
   # count by word and sentiment
   ___
@@ -340,22 +360,17 @@ word_counts <- tidy_shakespeare %>%
 top_words <- word_counts %>%
   # group by sentiment
   ___ %>%
-  # take the top 10 for each sentiment
   slice_max(n, n = 10) %>%
   ungroup() %>%
-  # make word a factor in order of n
   mutate(word = reorder(word, n))
 
-# Use aes() to put n on the x-axis and word on the y-axis
 ggplot(___, aes(___, ___, fill = sentiment)) +
-  # make a bar chart with geom_col()
   ___(show.legend = FALSE) +
   facet_wrap(~ sentiment, scales = "free")
 ```
 
 ```{r shakespeare-common-plot-solution}
 word_counts <- tidy_shakespeare %>%
-  # implement sentiment analysis using the "bing" lexicon
   inner_join(get_sentiments("bing")) %>%
   # count by word and sentiment
   count(word, sentiment)
@@ -363,15 +378,11 @@ word_counts <- tidy_shakespeare %>%
 top_words <- word_counts %>%
   # group by sentiment
   group_by(sentiment) %>%
-  # take the top 10 for each sentiment
   slice_max(n, n = 10) %>%
   ungroup() %>%
-  # make word a factor in order of n
   mutate(word = reorder(word, n))
 
-# Use aes() to put n on the x-axis and words on the y-axis
 ggplot(top_words, aes(n, word, fill = sentiment)) +
-  # make a bar chart with geom_col()
   geom_col(show.legend = FALSE) +
   facet_wrap(~ sentiment, scales = "free")
 ```
@@ -386,18 +397,16 @@ grade_code(correct = "Death is pretty negative and love is positive, but are the
 In the last exercise, you found the top 10 words that contributed most to negative sentiment in these Shakespearean plays, but lexicons are not always foolproof tools for use with all kinds of text. 
 
 ```{r shakespeare-quiz}
-quiz(
-  question('Which of those top 10 "negative"" words used by Shakespeare was misidentified as negative by the sentiment lexicon?',
-           answer("death"),
-           answer("wilt", correct = TRUE),
-           answer("poor"),
-           answer("fear"),
-           answer("die"),
-           allow_retry = TRUE,
-           random_answer_order = TRUE,
-           incorrect = "Incorrect. That is a negative word correctly identified by the sentiment lexicon. Which one is an archaic version of a different word used today?",
-           correct = "The word \"wilt\" was used differently in Shakespeare's time and was not negative; the lexicon has misidentified it. For example, from *Romeo and Juliet*, \"For thou wilt lie upon the wings of night\". It is important to explore the details of how words were scored when performing sentiment analyses."
-  )
+question('Which of those top 10 "negative"" words used by Shakespeare was misidentified as negative by the sentiment lexicon?',
+         answer("death"),
+         answer("wilt", correct = TRUE),
+         answer("poor"),
+         answer("fear"),
+         answer("die"),
+         allow_retry = TRUE,
+         random_answer_order = TRUE,
+         incorrect = "Incorrect. That is a negative word correctly identified by the sentiment lexicon. Which one is an archaic version of a different word used today?",
+         correct = "The word \"wilt\" was used differently in Shakespeare's time and was not negative; the lexicon has misidentified it. For example, from *Romeo and Juliet*, \"For thou wilt lie upon the wings of night\". It is important to explore the details of how words were scored when performing sentiment analyses."
 )
 ```
 
@@ -417,10 +426,10 @@ _You want a chunk of text that is not too small (because then the sentiment chan
 
 - Implement sentiment analysis using the `"bing"` lexicon.
 - Use `count()` to find the number of words for each sentiment used in each play in sections, using four arguments.
-  - The first argument for `count()` maps to the plays themselves.
-  - The second argument keeps track of whether the play is a comedy or tragedy.
-  - The third argument is defined by you; call it `index` and set it equal to `linenumber %/% 70`. This `index` makes chunks of text that are 70 lines long using integer division (`%/%`).
-  - The fourth argument maps to the different `sentiment` categories.
+- The first argument for `count()` maps to the plays themselves.
+- The second argument keeps track of whether the play is a comedy or tragedy.
+- The third argument is defined by you; call it `index` and set it equal to `linenumber %/% 70`. This `index` makes chunks of text that are 70 lines long using integer division (`%/%`).
+- The fourth argument maps to the different `sentiment` categories.
 
 
 ```{r shakespeare-count-four, exercise=TRUE, warning=FALSE, message=FALSE, error=FALSE}
@@ -493,9 +502,14 @@ grade_code(correct = "These plots show how sentiment changes through these plays
 ```
 
 
-## 4. Analyzing TV news {data-progressive=TRUE}
+## 4. Analyzing news headlines {data-progressive=TRUE}
 
-<iframe src="https://giphy.com/embed/cI5CL3l9kZ62w0Kh3c" width="480" height="267" frameBorder="0" class="giphy-embed" allowFullScreen></iframe><p><a href="https://giphy.com/gifs/snl-saturday-night-live-season-44-cI5CL3l9kZ62w0Kh3c">via GIPHY</a></p>
+<iframe src="https://giphy.com/embed/7IW6Jnw29TYmgkuu3M" width="480" height="270" frameBorder="0" class="giphy-embed" allowFullScreen></iframe><p><a href="https://giphy.com/gifs/usnationalarchives-paper-newspaper-printing-press-7IW6Jnw29TYmgkuu3M">via GIPHY</a></p>
+
+
+
+[![NYT](images/poweredby_nytimes_150a.png)](https://developer.nytimes.com/)
+
 
 
 
@@ -507,14 +521,355 @@ Some questions to verify that you understand the purposes of various base and re
 
 ## 5. Singing a different tune {data-progressive=TRUE}
 
-<iframe src="https://giphy.com/embed/cj3AKwbWXjjKCm9sQs" width="480" height="352" frameBorder="0" class="giphy-embed" allowFullScreen></iframe><p><a href="https://giphy.com/gifs/edsullivanshow-crickets-buddyholly-buddyhollyandthecrickets-cj3AKwbWXjjKCm9sQs">via GIPHY</a></p>
+<iframe src="https://giphy.com/embed/KeoXXlp8DwhdHfZLr6" width="480" height="382" frameBorder="0" class="giphy-embed" allowFullScreen></iframe><p><a href="https://giphy.com/gifs/edsullivanshow-girl-all-i-need-the-temptations-KeoXXlp8DwhdHfZLr6">via GIPHY</a></p>
+
+You have made it to your final case study of this tutorial! This case study demonstrates again how these kinds of techniques are applicable for many diverse kinds of texts. You have analyzed tktk, Shakespeare's plays, tktk, and now, in this final case study, you are going to use your text mining and sentiment analysis skills on a dataset of **lyrics from pop songs over 50 years**. All these texts are very different each other, but you are able to gain insight in each case because this approach is flexible and powerful.
+
+This dataset was created by [Kaylin Pavlik](https://github.com/walkerkq/musiclyrics), who published [her own analysis of these song lyrics](https://www.kaylinpavlik.com/50-years-of-pop-music/). The dataset consists of songs that were listed on Billboard's Year-End Hot 100 over five decades. You'll have a dataset available called `song_lyrics`, with variables:
+
+- `rank`, the rank a song achieved on the Billboard Year-End Hot 100
+- `song`, the song's title
+- `artist`, the artist who recorded the song
+- `year`, the year the song reached the given rank on the Billboard chart
+- `lyrics`, the lyrics of the song
 
 
-### Quiz
+### Tidying song lyrics
 
-*You can include any number of single or multiple choice questions as a quiz. Use the `question` function to define a question and the `quiz` function for grouping multiple questions together.*
+This dataset contains over 5000 songs, from 1965 to 2015. The lyrics are all in one column, so they are not yet in a tidy format, ready for analysis using tidy tools. It's your turn to tidy this text data!
 
-Some questions to verify that you understand the purposes of various base and recommended R packages:
+- Pipe the `song_lyrics` object to the next line.
+- Use `unnest_tokens()` to tokenize and tidy the `lyrics` column into a new `word` column.
+
+```{r tidy-lyrics, exercise=TRUE, warning=FALSE, message=FALSE, error=FALSE}
+# pipe song_lyrics to the next line
+tidy_lyrics <- ___ %>% 
+  # transform the lyrics column to a word column
+  ___
+
+# print tidy_lyrics
+tidy_lyrics
+```
+
+```{r tidy-lyrics-solution}
+# pipe song_lyrics to the next line
+tidy_lyrics <- song_lyrics %>% 
+  # transform the `lyrics` column to a `word` column
+  unnest_tokens(word, lyrics)
+
+# print tidy_lyrics
+tidy_lyrics
+```
+
+```{r tidy-lyrics-check}
+grade_code()
+```
+
+### Most common words in pop songs
+
+What are the most common words in these song lyrics? In her project, [Kaylin Pavlik](https://www.kaylinpavlik.com/50-years-of-pop-music/) made a word cloud of most common words, but she must have removed some stop words. We are used to seeing pretty uninformative examples when we look at the very top words, but are there differences compared to the other datasets we have used?
+
+- Use `count()` to tally up the words.
+- Set `sort = TRUE` to order by the count, instead of alphabetically.
+
+```{r top-lyrics, exercise=TRUE, warning=FALSE, message=FALSE, error=FALSE}
+tidy_lyrics %>%
+  ___
+```
+
+```{r top-lyrics-solution}
+tidy_lyrics %>%
+  count(word, sort = TRUE)
+```
+
+```{r top-lyrics-check}
+grade_code(correct = "This dataset is made up of somewhat different words than the other bodies of language we've looked in this tutorial. We see words like \"you\" and \"I\" with the very highest frequencies, and \"me\" and \"my\" also quite high; this is unique compared to most kinds of text.")
+```
+
+### Words per song
+
+Let's recreate one of the plots that Kaylin Pavlik makes in her analysis and plot the number of **words per song over time**.
+
+```{r words-per-song, exercise=TRUE, warning=FALSE, message=FALSE, error=FALSE}
+tidy_lyrics %>% 
+  # count with two arguments to find the number of words used in each song each year
+  ___ %>% 
+  # put `year` on the x-axis and `n` on the y-axis
+  ggplot(aes(___)) + 
+  # make a scatter plot with `geom_point()`
+  ___(alpha = 0.4, size = 5, color = "darkcyan") + 
+  # fit a line to the points with `geom_smooth()`
+  ___(method = "lm", color = "black")
+```
+
+```{r words-per-song-solution}
+tidy_lyrics %>% 
+  # count with two arguments to find the number of words used in each song each year
+  count(year, song) %>% 
+  # put `year` on the x-axis and `n` on the y-axis
+  ggplot(aes(year, n)) + 
+  # make a scatter plot with `geom_point()`
+  geom_point(alpha = 0.4, size = 5, color = "darkcyan") + 
+  # fit a line to the points with `geom_smooth()`
+  geom_smooth(method = "lm", color = "black")
+```
+
+```{r words-per-song-check}
+grade_code(correct = "If you wanted to recreate the plot for unique words per song, you would add one more line to this pipeline, using `distinct()` to find the unique words used in each song before counting them.")
+```
+
+### Change over time
+
+```{r lyrics-change-quiz}
+question('Over these decades, artists on the Billboard Hot 100 are releasing songs with',
+         answer("fewer words"),
+         answer("no change in words"),
+         answer("more words", correct = TRUE),
+         allow_retry = TRUE,
+         random_answer_order = TRUE,
+         incorrect = "Incorrect. Look at the slope of the line in the plot you made.",
+         correct = "Correct! The shift in words per song over these decades is not small!"
+)
+```
+
+
+### Pass the Courvoisier
+
+Are you wondering what these songs are with either very few or very many words? Modify the following code to `arrange()` the results with the shortest lyrics at the top.
+
+```{r shortest-longest, exercise=TRUE, exercise.eval=TRUE}
+tidy_lyrics %>% 
+  count(year, song) %>% 
+  arrange(-n)
+```
+
+```{r shortest-longest-solution}
+tidy_lyrics %>% 
+  count(year, song) %>% 
+  arrange(n)
+```
+
+```{r shortest-longest-check}
+grade_code("Honestly I didn't know that \"Chariots of Fire\" had lyrics.")
+```
+
+### HA HA HA
+
+This is the point in this case study where I put up a disclaimer that these are the real lyrics from real songs from the Billboard Hot 100, and many of them include offensive language. It could be argued that the rest of this case study is NSFW because of the text content of these lyrics. This is for adults only; please proceed using your own judgment.
+
+```{r ha-ha-ha, exercise=TRUE, exercise.eval=TRUE}
+song_lyrics %>% 
+  filter(song == "wipe out")
+```
+
+
+### Pop vocabulary over decades
+
+We could use any of the text analysis techniques we have explored so far in our case studies with these song lyrics, but let's take this opportunity to go a bit further and learn how to build linear models with text data. Specifically, let's build on the ideas in the [modeling section of *R for Data Science*](https://r4ds.had.co.nz/model-intro.html), especially the chapter on [many models](https://r4ds.had.co.nz/many-models.html). 
+
+*If you haven't read that chapter before, you may want to skim it before finishing this case study.* 
+
+We'll create our linear models in several steps. First, let's create a dataset of `word_counts`.
+
+- Start by counting to find the number of words used in each song each year.
+- Next, group by year and create a column via `mutate()` for the total words used each year.
+- After ungrouping, group by word.
+- Use `filter()` to keep only words used above a threshold, of 500 total uses in the dataset. (We don't want to try to train models on words used only a handful of times.)
+
+```{r lyric-word-counts, exercise=TRUE, warning=FALSE, message=FALSE, error=FALSE}
+word_counts <- tidy_lyrics %>% 
+  anti_join(get_stopwords()) %>% 
+  # count with two arguments to find the number of words used in each song each year
+  ___ %>% 
+  # group by `year`
+  ___ %>%
+  # create a new column for the total words per year
+  mutate(year_total = ___) %>% 
+  ungroup() %>% 
+  # now group by `word`
+  ___ %>% 
+  # keep only words used more than 500 times
+  ___(sum(n) > 500) %>% 
+  ungroup()
+
+word_counts
+```
+
+```{r lyric-word-counts-solution}
+word_counts <- tidy_lyrics %>% 
+  anti_join(get_stopwords()) %>% 
+  # count with two arguments to find the number of words used in each song each year
+  count(year, word) %>% 
+  # group by `year`
+  group_by(year) %>%
+  # create a new column for the total words per year
+  mutate(year_total = sum(n)) %>% 
+  ungroup() %>% 
+  # now group by `word`
+  group_by(word) %>% 
+  # keep only words used more than 500 times
+  filter(sum(n) > 500) %>% 
+  ungroup()
+
+word_counts
+```
+
+```{r lyric-word-counts-check}
+grade_code(correct = "Now you have the total number of uses of each word in each year.")
+```
+
+### Many models
+
+Now we can use the new `word_counts` dataset to train many linear models, one per word. We will load the [broom](https://broom.tidymodels.org/) package to handle the model output, the first package we've used in these case studies aside from tidytext and the tidyverse packages!
+
+- Create list-columns by nesting the word count data, nesting by `word`.
+- Use `mutate()` to create a new column for our models. We are training one model for each word, with `year` as the predictor. 
+
+ **NOTE:** *We are creating a slightly more complicated model than shown in the [many models](https://r4ds.had.co.nz/many-models.html) chapter, because we are modeling word counts, rather than a continuous property. This is a generalized linear model `glm()` using numbers of "successes" and "failures" as the response; this approach works better for this kind of data.*
+
+- Within the call to `summarize()`, use the broom function `tidy()` to summarize the `model` objects we just created for each word.
+- Use `filter()` to only keep the `"year"` terms in the output, since we are not interested in the intercepts.
+
+```{r many-models, exercise=TRUE, warning=FALSE, message=FALSE, error=FALSE}
+word_counts <- tidy_lyrics %>% 
+  anti_join(get_stopwords()) %>% 
+  count(year, word) %>% 
+  group_by(year) %>%
+  mutate(year_total = sum(n)) %>% 
+  ungroup() %>% 
+  group_by(word) %>% 
+  filter(sum(n) > 500) %>% 
+  ungroup()
+
+library(broom)
+
+slopes <- word_counts %>%
+  # nest by `word`
+  nest_by(___) %>%
+  # create a new column for our `model` objects
+  ___(model = list(glm(cbind(n, year_total) ~ year, 
+                          family = "binomial", data = data))) %>%
+  # tidy the `model`
+  summarize(tidy(___)) %>%
+  ungroup() %>%
+  # filter to only keep the "year" terms
+  ___(term == "year") %>%
+  mutate(p.value = p.adjust(p.value)) %>%
+  arrange(estimate)
+
+slopes
+```
+
+```{r many-models-solution}
+word_counts <- tidy_lyrics %>% 
+  anti_join(get_stopwords()) %>% 
+  count(year, word) %>% 
+  group_by(year) %>%
+  mutate(year_total = sum(n)) %>% 
+  ungroup() %>% 
+  group_by(word) %>% 
+  filter(sum(n) > 500) %>% 
+  ungroup()
+
+library(broom)
+
+slopes <- word_counts %>%
+  # nest by `word`
+  nest_by(word) %>%
+  # create a new column for our `model` objects
+  mutate(model = list(glm(cbind(n, year_total) ~ year, 
+                          family = "binomial", data = data))) %>%
+  # tidy the `model`
+  summarize(tidy(model)) %>%
+  ungroup() %>%
+  # filter to only keep the "year" terms
+  filter(term == "year") %>%
+  mutate(p.value = p.adjust(p.value)) %>%
+  arrange(estimate)
+
+slopes
+```
+
+```{r many-models-check}
+grade_code(correct = "This is some pretty hefty statistics you are doing now; you have trained one generalized linear model for each word in our dataset. These models ask the question, \"Is this word changing in usage over time?\"")
+```
+
+### Visualizing many models
+
+It's time for the last exercise in this case study on song lyrics! Let's create a visualization for all these models we trained. The visualization we are going to create is what is called a [volcano plot](https://en.wikipedia.org/wiki/Volcano_plot_(statistics)), comparing effect size and statistical significance.
+
+```{r lyric-volcano, out.width='100%', fig.width=9, exercise=TRUE, warning=FALSE, message=FALSE, error=FALSE}
+word_counts <- tidy_lyrics %>% 
+  anti_join(get_stopwords()) %>% 
+  count(year, word) %>% 
+  group_by(year) %>% 
+  mutate(year_total = sum(n)) %>% 
+  ungroup() %>% 
+  group_by(word) %>% 
+  filter(sum(n) > 500) %>% 
+  ungroup()
+
+library(broom)
+
+slopes <- word_counts %>% 
+  nest_by(word) %>%
+  mutate(model = list(glm(cbind(n, year_total) ~ year, 
+                          family = "binomial", data = data))) %>%
+  summarize(tidy(model)) %>%
+  ungroup() %>%
+  filter(term == "year") %>%
+  mutate(p.value = p.adjust(p.value)) %>%
+  arrange(estimate)
+
+slopes %>%
+  # put `estimate` on the x-axis and `p.value` on the y-axis
+  ggplot(aes(___)) +
+  geom_vline(xintercept = 0, lty = 2, size = 1.5, alpha = 0.7, color = "gray50") +
+  # make a scatter plot using `geom_point()`
+  ___(color = "darkcyan", alpha = 0.5, size = 2.5) +
+  # add the words with `geom_text()`
+  ___(aes(label = word), hjust = 0, vjust = 0, check_overlap = TRUE) +
+  scale_y_log10()
+```
+
+```{r lyric-volcano-solution}
+word_counts <- tidy_lyrics %>% 
+  anti_join(get_stopwords()) %>% 
+  count(year, word) %>% 
+  group_by(year) %>% 
+  mutate(year_total = sum(n)) %>% 
+  ungroup() %>% 
+  group_by(word) %>% 
+  filter(sum(n) > 500) %>% 
+  ungroup()
+
+library(broom)
+
+slopes <- word_counts %>% 
+  nest_by(word) %>%
+  mutate(model = list(glm(cbind(n, year_total) ~ year, 
+                          family = "binomial", data = data))) %>%
+  summarize(tidy(model)) %>%
+  ungroup() %>%
+  filter(term == "year") %>%
+  mutate(p.value = p.adjust(p.value)) %>%
+  arrange(estimate)
+
+slopes %>%
+  # put `estimate` on the x-axis and `p.value` on the y-axis
+  ggplot(aes(estimate, p.value)) +
+  geom_vline(xintercept = 0, lty = 2, size = 1.5, alpha = 0.7, color = "gray50") +
+  # make a scatter plot using `geom_point()`
+  geom_point(color = "darkcyan", alpha = 0.5, size = 2.5) +
+  # add the words with `geom_text()`
+  geom_text(aes(label = word), hjust = 0, vjust = 0, check_overlap = TRUE) +
+  scale_y_log10()
+```
+
+```{r lyric-volcano-check}
+grade_code(correct = "The effect size on the x-axis tells us whether a word is being used more (positive) or less (negative) as time passes. The p-value on the y-axis tells us about the significance of the result for that particular word. In earlier decades, song lyrics were more likely to address love/lovin'/loves while in more recent decades, song lyrics were more likely to include profanity.")
+```
+
 
 ## 6. Going further
 

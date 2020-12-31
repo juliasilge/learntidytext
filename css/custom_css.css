@@ -32,12 +32,12 @@ em {
 
 .topicsList .topic {
     font-family: 'Open Sans Condensed', sans-serif;
-    line-height: 40px;
-    font-size: 15px;
+    line-height: 50px;
+    font-size: 18px;
     padding-left: 10px;
     cursor: pointer;
     background-repeat: no-repeat;
-    background-size: 2px 80px;
+    background-size: 2px 100px;
     background-position: left 100%;
         background-position-y: 100%;
     background-image: url(images/topicProgress.png);

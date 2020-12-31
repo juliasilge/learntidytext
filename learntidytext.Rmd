@@ -3,10 +3,16 @@ title: "Text mining with tidy data principles"
 author: "Julia Silge"
 output: 
   learnr::tutorial:
+    css: css/custom_css.css
     allow_skip: true
 runtime: shiny_prerendered
 description: "Learn how to use tidytext!"
 ---
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono&family=Open+Sans+Condensed&family=Opens+Sans:wght@300;400&display=swap');
+</style> 
+
 
 ```{r setup, include=FALSE}
 library(learnr)
@@ -25,7 +31,10 @@ tidy_shakespeare <- shakespeare %>%
   unnest_tokens(word, text)
 
 nyt_headlines <- read_rds(here::here("data", "nyt_headlines.rds"))
-tidy_nyt <- nyt_headlines %>% unnest_tokens(word, headline)
+tidy_nyt <- nyt_headlines %>%
+  mutate(id = row_number()) %>%
+  unnest_tokens(word, headline)
+
 
 song_lyrics <- read_rds(here::here("data", "song_lyrics.rds"))
 tidy_lyrics <- song_lyrics %>% unnest_tokens(word, lyrics)
@@ -88,6 +97,10 @@ Write the R code required to add two plus two:
 
 ```
 
+How to tokenize: single words, bigrams
+count, make a plot
+bigrams + network plot
+
 ### Exercise with Code
 
 *Here's an exercise with some prepopulated code as well as `exercise.lines = 5` to provide a bit more initial room to work.*
@@ -113,8 +126,6 @@ The dataset is available for you to explore as a tibble called `shakespeare`, an
 - The first column gives you the `title` of the play, such as _Much Ado about Nothing_.
 - The next gives you the `genre` of play it is, either tragedy or comedy.
 - The last column gives you `text` from that play, one line at a time. 
-
-*As you work through this case study, you might notice that you are dealing with text in a pretty raw form. There are copyright notices about the particular electronic version we downloaded and other front matter included.*
 
 ### The game's afoot!
 
@@ -540,24 +551,25 @@ This dataset contains over 5000 newspaper headlines, from November 2020. The hea
 - Pipe the `nyt_headlines` object to the next line.
 - Use `unnest_tokens()` to tokenize and tidy the `headlines` column into a new `word` column.
 
+We also have added a headline `id` column via `mutate()` so we can keep track of which word belongs to which headline.
+
 ```{r tidy-headlines, exercise=TRUE, warning=FALSE, message=FALSE, error=FALSE}
-# pipe nyt_headlines to the next line
+# pipe `nyt_headlines` to the next line
 tidy_nyt <- ___ %>% 
-  # transform the headline column to a word column
+  mutate(id = row_number()) %>%
+  # transform the `headline` column to a `word` column
   ___
 
-# print tidy_lyrics
 tidy_nyt
 ```
 
 ```{r tidy-headlines-solution}
-# pipe song_lyrics to the next line
+# pipe `nyt_headlines` to the next line
 tidy_nyt <- nyt_headlines %>%
   mutate(id = row_number()) %>%
   # transform the `headline` column to a `word` column
   unnest_tokens(word, headline)
 
-# print tidy_lyrics
 tidy_nyt
 ```
 
@@ -611,37 +623,61 @@ grade_code(correct = "In November 2020, election results were in headlines at a 
 A central question in text mining is how to quantify what different documents or categories of documents are about. One approach to measure this is to use _tf-idf_, term frequency-inverse document frequency. A word's _term frequency_ is how frequently it occurs in a document. A word's _inverse document frequency_ is a weight, which decreases the weight for commonly used words and increases the weight for words that are not used very much in a collection of documents:
 
 $$idf(\text{term}) = \ln{\left(\frac{n_{\text{documents}}}{n_{\text{documents containing term}}}\right)}$$
-If you multiply the two together, you get tf-idf, a statistic intended to measure how important a word is to a document in a collection (or corpus) of documents.
+If you multiply the two together, you get tf-idf, a statistic intended to measure how important a word is to a document in a collection (or corpus) of documents. The [`bind_tf_idf()` function from tidytext](https://juliasilge.github.io/tidytext/reference/bind_tf_idf.html) can compute tf-idf for a text data in a tidy format.
 
 Let's look at this in the context of the NYT headlines.
 
-```{r nyt-stop-words, exercise=TRUE, warning=FALSE, message=FALSE, error=FALSE}
-tidy_nyt %>%
+- Start by counting up the words in the `tidy_nyt` data, using three arguments: `section` (to keep track of the newspaper sections), `id` for each headline, and `word`.
+- Specify the appropriate three arguments for `bind_tf_idf()`:
+  - The first is the token or term, `word`, and the second is the document, the headline `id`.
+  - The last argument is the column that contains the document-term counts, which is `n`, the output of `count()`.
+
+Because of the line `arrange(-tf_idf)`, the output shows the _highest_ tf-idf words in the whole dataset of headlines, the most distinctive words found.
+
+```{r nyt-tf-idf, exercise=TRUE, warning=FALSE, message=FALSE, error=FALSE}
+nyt_tf_idf <- tidy_nyt %>%
+  # count with three arguments
   ___ %>%
-  count(word, sort = TRUE)
+  # there are also three arguments for `bind_tf_idf()`
+  bind_tf_idf(___) %>%
+  arrange(-tf_idf)
+
+nyt_tf_idf
 ```
 
-```{r nyt-stop-words-solution}
+```{r nyt-tf-idf-solution}
+nyt_tf_idf <- tidy_nyt %>%
+  # count with three arguments
+  count(section, id, word) %>%
+  # there are also three arguments for `bind_tf_idf()`
+  bind_tf_idf(word, id, n) %>%
+  arrange(-tf_idf)
+
+nyt_tf_idf
+```
+
+```{r nyt-tf-idf-check}
+grade_code(correct = "The highest tf-idf words also have both `n` and term frequency equal to 1, meaning that these were headlines that only had a single word in them. Not all the headlines in this dataset are what we would think of as traditional headlines.")
+```
+
+
+### Visualize tf-idf
+
+Let's use visualization to understand the high tf-idf words better. Let's connect the highest tf-idf words to the _sections_ of the newspaper and look at the top 10 highest tf-idf headline words for four different newspaper sections. 
+
+The following code looks at the food, opinion, and technology sections, along with [The Upshot](https://www.nytimes.com/section/upshot). Once you complete the code, you can switch these out for any of the other sections you can found in the first exercise in this case study (just use "Run Code" instead of "Submit Answer").
+
+- Put `tf_idf` on the x-axis, and `word` on the y-axis.
+- Use `facet_wrap()` to make small multiples for each newspaper section.
+
+```{r nyt-tf-idf-prep}
 nyt_tf_idf <- tidy_nyt %>%
   count(section, id, word) %>%
   bind_tf_idf(word, id, n) %>%
   arrange(-tf_idf)
 ```
 
-```{r nyt-stop-words-check}
-grade_code(correct = "In November 2020, election results were in headlines at a much higher rate than coronavirus.")
-```
-
-
-### Visualize tf-idf
-
-```{r nyt-stop-words, exercise=TRUE, warning=FALSE, message=FALSE, error=FALSE}
-tidy_nyt %>%
-  ___ %>%
-  count(word, sort = TRUE)
-```
-
-```{r nyt-stop-words-solution}
+```{r nyt-tf-idf-viz, out.width='100%', fig.height=6, fig.width=9, exercise=TRUE, warning=FALSE, message=FALSE, error=FALSE, exercise.setup = "nyt-tf-idf-prep"}
 sections <- c("Food", "Opinion", "Technology", "The Upshot")
 
 nyt_tf_idf %>%
@@ -651,21 +687,151 @@ nyt_tf_idf %>%
   slice_max(tf_idf, n = 10, with_ties = FALSE) %>%
   ungroup() %>%
   mutate(word = factor(word, levels = rev(unique(word)))) %>%
-  ggplot(aes(tf_idf, word, fill = section)) +
+  # put `tf_idf` on the x-axis, `word` on the y-axis
+  ggplot(aes(___, fill = section)) +
   geom_col(show.legend = FALSE) +
-  facet_wrap(~section, ncol = 2, scales = "free")
+  # make small multiples
+  ___(~ section, ncol = 2, scales = "free")
 ```
 
-```{r nyt-stop-words-check}
-grade_code(correct = "In November 2020, election results were in headlines at a much higher rate than coronavirus.")
+```{r nyt-tf-idf-viz-solution}
+sections <- c("Food", "Opinion", "Technology", "The Upshot")
+
+nyt_tf_idf %>%
+  filter(!near(tf, 1)) %>%
+  filter(section %in% sections) %>%
+  group_by(section) %>%
+  slice_max(tf_idf, n = 10, with_ties = FALSE) %>%
+  ungroup() %>%
+  mutate(word = factor(word, levels = rev(unique(word)))) %>%
+  # put `tf_idf` on the x-axis, `word on the y-axis
+  ggplot(aes(tf_idf, word, fill = section)) +
+  geom_col(show.legend = FALSE) +
+  # make small multiples
+  facet_wrap(~ section, ncol = 2, scales = "free")
+```
+
+```{r nyt-tf-idf-viz-check}
+grade_code(correct = "Words about IPOs were more characteristic of the technology section while words about stews and pasta were more characteristic of the food section. Also notice that we filtered out those headlines with one word.")
 ```
 
 ### Tokenize headlines to bigrams
 
+We've focused on single word (unigrams) in this case study so far, but you can compute tf-idf for lots of different kinds of things, including higher order n-grams, like bigrams. Let's go back to our original dataset of headlines and tokenize again, this time to bigrams, so that we can find the most distinctive **bigrams** for different sections of the paper in November 2020.
+
+- We use the same function for tokenizing and tidying text to bigrams that we have for other tokenization through this tutorial.
+- The last argument specifies what order n-grams to create, `n = 2`.
+
+```{r bigram-headlines, exercise=TRUE, warning=FALSE, message=FALSE, error=FALSE}
+nyt_bigrams <- nyt_headlines %>%
+  mutate(id = row_number()) %>%
+  # tidy/tokenize with n = 2
+  ___(bigram, headline, token = "ngrams", ___) %>%
+  arrange(id)
+
+nyt_bigrams
+```
+
+```{r bigram-headlines-solution}
+nyt_bigrams <- nyt_headlines %>%
+  mutate(id = row_number()) %>%
+  # tidy/tokenize with n = 2
+  unnest_tokens(bigram, headline, token = "ngrams", n = 2) %>%
+  arrange(id)
+
+nyt_bigrams
+```
+
+```{r bigram-headlines-check}
+grade_code("Notice again that bigrams slide along text to create overlapping sets of two words.")
+```
+
+
 ### Compute tf-idf of bigrams
+
+Computing tf-idf for bigrams works almost just the same as computing tf-idf for words! Take a look at the previous exercise and see if you can modify the code you wrote there for the `bigram` case.
+
+```{r nyt-bigram-prep}
+nyt_bigrams <- nyt_headlines %>%
+  mutate(id = row_number()) %>%
+  unnest_tokens(bigram, headline, token = "ngrams", n = 2) %>%
+  arrange(id)
+
+bigram_tf_idf <- nyt_bigrams %>%
+  count(section, id, bigram) %>%
+  bind_tf_idf(bigram, id, n) %>%
+  arrange(-tf_idf)
+```
+
+
+```{r bigram-tf-idf, exercise=TRUE, warning=FALSE, message=FALSE, error=FALSE, exercise.setup = "nyt-bigram-prep"}
+bigram_tf_idf <- nyt_bigrams %>%
+  # count with three arguments
+  ___ %>%
+  ___ %>%
+  arrange(-tf_idf)
+
+bigram_tf_idf
+```
+
+```{r bigram-tf-idf-solution}
+bigram_tf_idf <- nyt_bigrams %>%
+  # count with three arguments
+  count(section, id, bigram) %>%
+  bind_tf_idf(bigram, id, n) %>%
+  arrange(-tf_idf)
+
+bigram_tf_idf
+```
+
+```{r bigram-tf-idf-check}
+grade_code(correct = "We've got more single-bigram headlines from the crossword section! I've never really paid much attention to headlines there but we are learning here that they are used differently.")
+```
+
 
 ### Highest tf-idf bigrams
 
+Now we can make another visualization comparing newspaper sections, but this time with our bigrams. Again, please explore any of the sections you are interested in by changing the items in `sections` and using the "Run Code" button.
+
+There are whole lines missing from this pipeline, but check out the previous exercise where you created a visualization to refresh your memory about what steps to take!
+
+```{r nyt-bigram-viz, out.width='100%', fig.height=6, fig.width=9, exercise=TRUE, warning=FALSE, message=FALSE, error=FALSE, exercise.setup = "nyt-bigram-prep"}
+sections <- c("Books", "Climate", "New York", "Parenting")
+
+bigram_tf_idf %>%
+  filter(!near(tf, 1)) %>%
+  filter(section %in% sections) %>%
+  # what should you group by?
+  ___ %>%
+  slice_max(tf_idf, n = 10, with_ties = FALSE) %>%
+  ungroup() %>%
+  mutate(bigram = factor(bigram, levels = rev(unique(bigram)))) %>%
+  # how should the plot aesthetics be set up?
+  ___ +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ section, ncol = 2, scales = "free")
+```
+
+```{r nyt-bigram-viz-solution}
+sections <- c("Books", "Climate", "New York", "Parenting")
+
+bigram_tf_idf %>%
+  filter(!near(tf, 1)) %>%
+  filter(section %in% sections) %>%
+  # what should you group by?
+  group_by(section) %>%
+  slice_max(tf_idf, n = 10, with_ties = FALSE) %>%
+  ungroup() %>%
+  mutate(bigram = factor(bigram, levels = rev(unique(bigram)))) %>%
+  # how should the plot aesthetics be set up?
+  ggplot(aes(tf_idf, bigram, fill = section)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ section, ncol = 2, scales = "free")
+```
+
+```{r nyt-bigram-viz-check}
+grade_code(correct = "Remember that we computed tf-idf per **headline** and did not put any information about the sections into the tf-idf computation. The reason that high tf-idf bigrams about drilling are associated with climate reporting is because tf-idf is good at finding distinctive tokens in a document compared to a collection of other documents.")
+```
 
 
 ## 5. Singing a different tune {data-progressive=TRUE}
@@ -946,7 +1112,7 @@ grade_code(correct = "This is some pretty hefty statistics you are doing now; yo
 
 It's time for the last exercise in this case study on song lyrics! Let's create a visualization for all these models we trained. The visualization we are going to create is what is called a [volcano plot](https://en.wikipedia.org/wiki/Volcano_plot_(statistics)), comparing effect size and statistical significance.
 
-```{r lyric-volcano, out.width='100%', fig.height=6, fig.width=9, exercise=TRUE, warning=FALSE, message=FALSE, error=FALSE,  exercise.setup = "many-models-setup"}
+```{r lyric-volcano, out.width='100%', fig.height=5, fig.width=9, exercise=TRUE, warning=FALSE, message=FALSE, error=FALSE,  exercise.setup = "many-models-setup"}
 slopes %>%
   # put `estimate` on the x-axis and `p.value` on the y-axis
   ggplot(aes(___)) +

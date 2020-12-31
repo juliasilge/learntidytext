@@ -50,7 +50,7 @@ tidy_lyrics <- song_lyrics %>% unnest_tokens(word, lyrics)
 
 ![](images/tidytext.png)
 
-Text datasets are diverse and ubiquitous, and tidy data principles provide an approach to make text mining easier, more effective, and consistent with tools already in wide use. In this tutorial, you will develop your text mining skills using the [tidytext](https://juliasilge.github.io/tidytext/) package in R, along with other [tidyverse](https://www.tidyverse.org/) tools. You will apply these skills in several case studies, which will allow you to: 
+Text datasets are diverse and ubiquitous, and **tidy data principles** provide an approach to make text mining easier, more effective, and consistent with tools already in wide use. In this tutorial, you will develop your text mining skills using the [tidytext](https://juliasilge.github.io/tidytext/) package in R, along with other [tidyverse](https://www.tidyverse.org/) tools. You will apply these skills in several case studies, which will allow you to: 
 
 - practice important data handling skills, 
 - learn about the ways text analysis can be applied, and 
@@ -74,11 +74,11 @@ library(tidytext)
 grade_code("Be sure to click \"Submit Answer \" on exercises throughout the tutorial because there are hints, answers, and other content available to you after you submit.")
 ```
 
-You can type in these code exercises. Give it a try now! If you mess up, click "Start Over" to get back to the original state. Use the "Run Code" button to see what happens, and click on "Solution" to check out the solution.
+You can type in these code exercises. **Give it a try now!** If you mess up, click "Start Over" to get back to the original state. Use the "Run Code" button to see what happens, and click on "Solution" to check out the solution.
 
 In the exercise above, type `library(tidytext)` and click "Submit Answer".
 
-This tutorial is organized into four case studies, each with its own dataset:
+This tutorial is organized into **four case studies**, each with its own dataset:
 
 - transcripts of TED talks
 - a collection of comedies and tragedies by Shakespeare
@@ -124,17 +124,17 @@ The TED talk transcripts are available to you in a dataframe called `ted_talks`.
 - `speaker`: the main or first listed speaker (some TED talks have more than one speaker)
 
 ```{r ted-talks, exercise=TRUE}
-# type `ted_talks` to load and see the dataset
-
+# glimpse `ted_talks` to see what is in the dataset
+glimpse(___)
 ```
 
 ```{r ted-talks-solution}
-# type `ted_talks` to load and see the dataset
-ted_talks
+# glimpse `ted_talks` to see what is in the dataset
+glimpse(ted_talks)
 ```
 
 ```{r ted-talks-check}
-grade_code("The talk by Hans Rosling is an excellent one, all about data. You should find it and watch it if you haven't!")
+grade_code()
 ```
 
 ### How to tidy text data
@@ -203,7 +203,7 @@ grade_code("The bigrams slide along the text to create overlapping sequences of 
 
 ### Most common TED talk words
 
-Let's go back to single words. What are the most common words in these TED talks? Now that our data in a tidy format, a whole world of analysis opportunity has opened up for us. We can start by computing term frequencies in just one line.
+Let's go back to single words. Now that our data in a tidy format, a whole world of analysis opportunity has opened up for us. We can start by computing term frequencies in just one line. What are the **most common words** in these TED talks? 
 
 - Use `count()` to find the most common words.
 
@@ -226,7 +226,7 @@ grade_code(correct = "That was just one line, but also these are not very intere
 Words like "the", "and", and "to" that aren't very interesting for a text analysis are called **stop words**. Often the best choice is to remove them. The tidytext package provides access to stop word lexicons, with a default list and then other options and other languages.
 
 ```{r display-stop-words, exercise=TRUE, exercise.eval=TRUE}
-# try out the `language` argument, which takes two-letter language abbreviations
+# try out the `language` argument, which takes two-letter language abbreviations like "es"
 get_stopwords()
 ```
 
@@ -253,7 +253,7 @@ grade_code(correct = "These are now more interesting words and are starting to s
 
 ### Visualize top words
 
-Because we are using tidyverse tools, we can fluently pipe from the kind of code we just wrote straight to ggplot2 functions. One of the significant benefits of using tidy data principles is consistency with tools in wide use with broad support.
+Because we are using tidyverse tools, we can fluently pipe from the kind of code we just wrote straight to ggplot2 functions. One of the significant benefits of using tidy data principles is consistency with widely-used tools that are broadly supported.
 
 - Remove stop words (the default list) via an `anti_join()`.
 - Create a plot with `n` on the x-axis and `word` on the y-axis.
@@ -290,14 +290,14 @@ grade_code(correct = "The word \"laughter\" is so high because the transcripts i
 
 One of my favorite approaches to text analysis is to compare how different people or groups use language. There are lots of different ways to do this, but you can start with plain old word counts! Let's look at two TED talk speakers, [Jane Goodall](https://en.wikipedia.org/wiki/Jane_Goodall) and [Temple Grandin](https://en.wikipedia.org/wiki/Temple_Grandin), and count up the words they used in their TED talks.
 
-*If you want to explore other speakers, switch out the names and hit "Run Code".*
+*If you want to explore other speakers, switch out for different speakers names from the dataset and hit "Run Code", after finishing the exercise.*
 
 - Use `filter()` to keep only the words spoken by Jane Goodall and Temple Grandin.
 - Remove the default list of stop words.
-- Use `count()` with two arguments to count up the term frequencies by `speaker` and `word`. (These first three steps could actually be taken in any order but this makes most sense to me.)
+- Use `count()` with two arguments to count up the term frequencies by `speaker` and `word`. (These first three steps could actually be completed in any order but this makes most sense to me.)
 - Come back and `filter()` again to only keep words spoken at least 10 times by both women.
 
-The function [`pivot_wider()` from tidyr](https://tidyr.tidyverse.org/reference/pivot_wider.html) pivots the long, tidy dataframe to a wide dataframe so we can more easily compare the two women's word counts.
+The function [`pivot_wider()` from tidyr](https://tidyr.tidyverse.org/reference/pivot_wider.html) pivots the long, tidy dataframe to a wide dataframe so we can more easily compare the two speakers' word counts.
 
 ```{r ted-final-pivot, exercise=TRUE, warning=FALSE, message=FALSE, error=FALSE}
 tidy_talks %>%
@@ -331,7 +331,7 @@ grade_code(correct = "Using tidyverse functions lets us flexibly approach many k
 
 ### Visualize vocabulary comparison
 
-It's interesting to look at the numbers themselves, but this would be better as a visualization. We can put one speaker on the x-axis and the other on the y-axis to compare their word counts. Words that appear close to the `slope = 1` line are used about evenly by both (since the talks were about the same length) and words far away are used more by one speaker.
+It's interesting to look at the numbers themselves, but this would be better as a **visualization**. We can put one speaker on the x-axis and the other on the y-axis to compare their word counts. Words that appear close to the `slope = 1` line are used about evenly by both (since the talks were about the same length) and words far away are used more by one speaker.
 
 - Load the [ggrepel](https://ggrepel.slowkow.com/) package, for better plotting of text labels.
 - Use `geom_text_repel()` to place the text annotations on the plot.
@@ -389,7 +389,7 @@ In the first case study of this tutorial, you learned about how to transform tex
 The dataset is available for you to explore as a tibble called `shakespeare`, and there are three columns. 
 
 - The first column gives you the `title` of the play, such as _Much Ado about Nothing_.
-- The next gives you the `genre` of play it is, either tragedy or comedy.
+- The next gives you the `genre` of play, either tragedy or comedy.
 - The last column gives you `text` from that play, one line at a time. 
 
 ### The game's afoot!
@@ -491,7 +491,7 @@ question('Which of the following words is most unlikely to be found in a sentime
 
 ### Sentiment analysis via an `inner_join()`
 
-When text data is in a tidy data structure like we are working with in this tutorial, with one word per row, you can perform sentiment analysis using an inner join, like you may have worked with in SQL or in [dplyr](https://dplyr.tidyverse.org/). Remember that the sentiment lexicon you just saw is a data frame with one word per row. When your text data is also stored in that form, with one word per row, then the result of an inner join between those two datasets will give you all the words that are both in the text you are analyzing and the lexicon.
+When text data is in a tidy data structure like we are working with in this tutorial, with **one word per row**, you can perform sentiment analysis using an inner join, like you may have worked with in SQL or in [dplyr](https://dplyr.tidyverse.org/). Remember that the sentiment lexicon you just saw is a data frame with one word per row. When your text data is also stored in that form, with one word per row, then the result of an inner join between those two datasets will give you all the words that are both in the text you are analyzing and the lexicon.
 
 Let's say you have the following text dataset, available in your environment as `text`:
 
@@ -612,7 +612,7 @@ grade_code(correct = "Looking at the `percent` column of your output, you can se
 
 ### Most common positive and negative words
 
-You found in the previous exercise that Shakespeare's tragedies use proportionally more negative words than the comedies. Now you can explore which specific words are driving these sentiment scores. Which are the most common positive and negative words in these plays?
+You found in the previous exercise that Shakespeare's tragedies use proportionally more negative words than the comedies. Now you can explore which specific words are driving these sentiment scores. Which are the most common **positive** and **negative** words in these plays?
 
 There are **three** steps in the code in this exercise. The first step counts how many times each word is used, the second step takes the top 10 most-used positive and negative words, and the final step makes a plot to visualize this result.
 
@@ -702,10 +702,10 @@ _You want a chunk of text that is not too small (because then the sentiment chan
 
 - Implement sentiment analysis using the `"bing"` lexicon.
 - Use `count()` to find the number of words for each sentiment used in each play in sections, using four arguments.
-- The first argument for `count()` maps to the plays themselves.
-- The second argument keeps track of whether the play is a comedy or tragedy.
-- The third argument is defined by you; call it `index` and set it equal to `linenumber %/% 70`. This `index` makes chunks of text that are 70 lines long using integer division (`%/%`).
-- The fourth argument maps to the different `sentiment` categories.
+  - The first argument for `count()` maps to the plays themselves.
+  - The second argument keeps track of whether the play is a comedy or tragedy.
+  - The third argument is defined by you; call it `index` and set it equal to `linenumber %/% 70`. This `index` makes chunks of text that are 70 lines long using integer division (`%/%`).
+  - The fourth argument maps to the different `sentiment` categories.
 
 
 ```{r shakespeare-count-four, exercise=TRUE, warning=FALSE, message=FALSE, error=FALSE}
@@ -739,7 +739,7 @@ Now you will build on the code from the previous exercise and continue to move f
 - Use `geom_col()` to make a bar chart.
 - Call `facet_wrap()` to make a separate panel for each title.
 
-**SPOILER ALERT:** It doesn't look like Romeo and Juliet are going to have a happy ending!!!
+***SPOILER ALERT:*** *It doesn't look like Romeo and Juliet are going to have a happy ending!!!*
 
 ```{r shakespeare-arcs, out.width='100%', fig.width=8, exercise=TRUE, warning=FALSE, message=FALSE, error=FALSE}
 tidy_shakespeare %>%
@@ -844,7 +844,7 @@ grade_code("This is the third time you have tidied a text dataset in this tutori
 
 ### Most common headline words
 
-What are the most common words in these headlines? Analyzing headlines is not quite like analyzing other kinds of text, but to be honest, that turns out to be a lot of the time. Many text datasets have specific characteristics (document length, vocabulary, semantic patterns, etc) that make them stand out compared to other datasets, even when you look at just the most common words. 
+What are the most common words in these headlines? Analyzing headlines is not quite like analyzing other kinds of text, but to be honest, that turns out to be true a lot of the time. Many text datasets have **specific characteristics** (document length, vocabulary, semantic patterns, etc) that make them stand out compared to other datasets, sometimes even when you look at just the most common words. 
 
 - Use `count()` to tally up the words.
 - Set `sort = TRUE` to order by the count, instead of alphabetically.
@@ -885,7 +885,7 @@ grade_code(correct = "In November 2020, election results were in headlines at a 
 
 ### What are the newspaper sections about?
 
-A central question in text mining is how to quantify what different documents or categories of documents are about. One approach to measure this is to use _tf-idf_, term frequency-inverse document frequency. A word's _term frequency_ is how frequently it occurs in a document. A word's _inverse document frequency_ is a weight, which decreases the weight for commonly used words and increases the weight for words that are not used very much in a collection of documents:
+A central question in text mining is how to quantify what different documents or categories of documents are about. One approach to measure this is to use _tf-idf_, term frequency-inverse document frequency. A word's **term frequency** is how frequently it occurs in a document. A word's **inverse document frequency** is a weight, which decreases the weight for commonly used words and increases the weight for words that are not used very much in a collection of documents:
 
 $$idf(\text{term}) = \ln{\left(\frac{n_{\text{documents}}}{n_{\text{documents containing term}}}\right)}$$
 If you multiply the two together, you get tf-idf, a statistic intended to measure how important a word is to a document in a collection (or corpus) of documents. The [`bind_tf_idf()` function from tidytext](https://juliasilge.github.io/tidytext/reference/bind_tf_idf.html) can compute tf-idf for a text data in a tidy format.
@@ -928,9 +928,11 @@ grade_code(correct = "The highest tf-idf words also have both `n` and term frequ
 
 ### Visualize tf-idf
 
-Let's use visualization to understand the high tf-idf words better. Let's connect the highest tf-idf words to the _sections_ of the newspaper and look at the top 10 highest tf-idf headline words for four different newspaper sections. 
+Let's use visualization to understand the high tf-idf words better. Let's connect the highest tf-idf words to the **sections** of the newspaper and look at the top 10 highest tf-idf headline words for four different newspaper sections. 
 
-The following code looks at the food, opinion, and technology sections, along with [The Upshot](https://www.nytimes.com/section/upshot). Once you complete the code, you can switch these out for any of the other sections you can found in the first exercise in this case study (just use "Run Code" instead of "Submit Answer").
+The following code looks at the food, opinion, and technology sections, along with [The Upshot](https://www.nytimes.com/section/upshot). 
+
+_Once you complete the code, you can switch these out for any of the other sections you found in the first exercise in this case study (just use "Run Code" instead of "Submit Answer")._
 
 - Put `tf_idf` on the x-axis, and `word` on the y-axis.
 - Use `facet_wrap()` to make small multiples for each newspaper section.
@@ -1056,7 +1058,9 @@ grade_code(correct = "We've got more single-bigram headlines from the crossword 
 
 ### Highest tf-idf bigrams
 
-Now we can make another visualization comparing newspaper sections, but this time with our bigrams. Again, please explore any of the sections you are interested in by changing the items in `sections` and using the "Run Code" button.
+Now we can make another visualization comparing newspaper sections, but this time with our **bigrams**. 
+
+*Again, please explore any of the sections you are interested in by changing the items in `sections` and using the "Run Code" button.*
 
 There are whole lines missing from this pipeline, but check out the previous exercise where you created a visualization to refresh your memory about what steps to take!
 
@@ -1147,7 +1151,7 @@ grade_code()
 
 ### Most common words in pop songs
 
-What are the most common words in these song lyrics? In her project, [Kaylin Pavlik](https://www.kaylinpavlik.com/50-years-of-pop-music/) made a word cloud of most common words, but she must have removed some stop words. We are used to seeing pretty uninformative examples when we look at the very top words, but are there differences compared to the other datasets we have used?
+What are the **most common words** in these song lyrics? In her project, [Kaylin Pavlik](https://www.kaylinpavlik.com/50-years-of-pop-music/) made a word cloud of most common words, but she must have removed some stop words. We are used to seeing pretty uninformative examples when we look at the very top words, but are there differences compared to the other datasets we have used?
 
 - Use `count()` to tally up the words.
 - Set `sort = TRUE` to order by the count, instead of alphabetically.
@@ -1202,9 +1206,9 @@ grade_code(correct = "If you wanted to recreate the plot for unique words per so
 
 ```{r lyrics-change-quiz}
 question('Over these decades, artists on the Billboard Hot 100 are releasing songs with',
-         answer("fewer words"),
-         answer("no change in words"),
-         answer("more words", correct = TRUE),
+         answer("fewer words."),
+         answer("no change in words."),
+         answer("more words.", correct = TRUE),
          allow_retry = TRUE,
          random_answer_order = TRUE,
          incorrect = "Incorrect. Look at the slope of the line in the plot you made.",
@@ -1215,7 +1219,7 @@ question('Over these decades, artists on the Billboard Hot 100 are releasing son
 
 ### Pass the Courvoisier
 
-Are you wondering what these songs are with either very few or very many words? Modify the following code to `arrange()` the results with the shortest lyrics at the top.
+Are you wondering what these songs are with either very few or very many words? Modify the following code to `arrange()` the results with the **shortest lyrics** at the top.
 
 ```{r shortest-longest, exercise=TRUE, exercise.eval=TRUE}
 tidy_lyrics %>% 
@@ -1235,7 +1239,7 @@ grade_code("Honestly I didn't know that \"Chariots of Fire\" had lyrics.")
 
 ### HA HA HA
 
-This is the point in this case study where I put up a disclaimer that these are the real lyrics from real songs from the Billboard Hot 100, and many of them include offensive language. It could be argued that the rest of this case study is NSFW because of the text content of these lyrics. This is for adults only; please proceed using your own judgment.
+This is the point in this case study where I put up a disclaimer that these are the real lyrics from real songs from the Billboard Hot 100, and many of them include offensive language. It could be argued that the **rest of this case study is NSFW** because of the text content of these lyrics. This is for adults only; please proceed using your own judgment.
 
 ```{r ha-ha-ha, exercise=TRUE, exercise.eval=TRUE}
 song_lyrics %>% 
@@ -1245,7 +1249,7 @@ song_lyrics %>%
 
 ### Pop vocabulary over decades
 
-We could use any of the text analysis techniques we have explored so far in our case studies with these song lyrics, but let's take this opportunity to go a bit further and learn how to build linear models with text data to understand how the pop vocabulary is changing over time. Specifically, let's build on the ideas in the [modeling section of *R for Data Science*](https://r4ds.had.co.nz/model-intro.html), especially the chapter on [many models](https://r4ds.had.co.nz/many-models.html). 
+We could use any of the text analysis techniques we have explored so far in our case studies with these song lyrics, but let's take this opportunity to go a bit further and learn how to build **linear models with text data** to understand how the pop vocabulary is changing over time. Specifically, let's build on the ideas in the [modeling section of *R for Data Science*](https://r4ds.had.co.nz/model-intro.html), especially the chapter on [**many models**](https://r4ds.had.co.nz/many-models.html). 
 
 ***NOTE:*** *If you haven't read that chapter before, you may want to skim it before finishing this case study.* 
 
@@ -1298,7 +1302,7 @@ grade_code(correct = "Now you have the total number of uses of each word in each
 
 ### Many models
 
-Now we can use the new `word_counts` dataset to train many linear models, one per word. We will load the [broom](https://broom.tidymodels.org/) package to handle the model output, the first package we've used in these case studies aside from tidytext and the tidyverse packages!
+Now we can use the new `word_counts` dataset to train many linear models, **one per word**. We will load the [broom](https://broom.tidymodels.org/) package to handle the model output.
 
 - Create list-columns by nesting the word count data, nesting by `word`.
 - Use `mutate()` to create a new column for our models. We are training one model for each word, with `year` as the predictor. 
@@ -1375,7 +1379,7 @@ grade_code(correct = "This is some pretty hefty statistics you are doing now; yo
 
 ### Visualizing many models
 
-It's time for the last exercise in this case study on song lyrics! Let's create a visualization for all these models we trained. The visualization we are going to create is what is called a [volcano plot](https://en.wikipedia.org/wiki/Volcano_plot_(statistics)), comparing effect size and statistical significance.
+It's time for the last exercise in this case study on song lyrics! Let's create a visualization for all these models we trained. The visualization we are going to create is what is called a [volcano plot](https://en.wikipedia.org/wiki/Volcano_plot_(statistics)), comparing **effect size** and **statistical significance**.
 
 ```{r lyric-volcano, out.width='100%', fig.height=5, fig.width=9, exercise=TRUE, warning=FALSE, message=FALSE, error=FALSE,  exercise.setup = "many-models-setup"}
 slopes %>%

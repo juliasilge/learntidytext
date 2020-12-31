@@ -18,10 +18,16 @@ description: "Learn how to use tidytext!"
 library(learnr)
 library(tidyverse)
 library(tidytext)
+library(stopwords)
+library(ggrepel)
+library(scales)
 library(here)
 library(gradethis)
 knitr::opts_chunk$set(echo = FALSE, exercise.checker = gradethis::grade_learnr)
 theme_set(theme_light())
+
+ted_talks <- read_rds(here::here("data", "ted_talks.rds"))
+tidy_talks <- ted_talks %>% unnest_tokens(word, text)
 
 shakespeare <- read_rds(here::here("data", "shakespeare.rds"))
 tidy_shakespeare <- shakespeare %>%
@@ -74,7 +80,7 @@ In the exercise above, type `library(tidytext)` and click "Submit Answer".
 
 This tutorial is organized into four case studies, each with its own dataset:
 
-- tktk
+- transcripts of TED talks
 - a collection of comedies and tragedies by Shakespeare
 - one month of newspaper headlines
 - song lyrics spanning five decades
@@ -85,33 +91,292 @@ These case studies demonstrate how you can use text analysis techniques with div
 
 To get the most from this tutorial, you should have some familiarity with R and [tidyverse](https://www.tidyverse.org/) functions like those from dplyr and ggplot2. If you have read [*R for Data Science*](https://r4ds.had.co.nz/) by Hadley Wickham and Garrett Grolemund, you are good to go!
 
-## 2. Tweets across the USA {data-progressive=TRUE}
+## 2. Thank you for coming to my TED talk {data-progressive=TRUE}
 
-### Exercise 
+<iframe src="https://giphy.com/embed/495RS6uWPjq008HACu" width="480" height="270" frameBorder="0" class="giphy-embed" allowFullScreen></iframe><p><a href="https://giphy.com/gifs/usnationalarchives-applause-hollywood-audience-495RS6uWPjq008HACu">via GIPHY</a></p>
 
-*Here's a simple exercise with an empty code chunk provided for entering the answer.*
+The first case study of this tutorial uses a dataset of TED talks created by Katherine M. Kinnaird and John Laudun for their paper ["TED Talks as Data"](https://doi.org/10.22148/16.042). The specific talks we are using are from the main TED event, and the dataset was curated in the summer of 2018.
 
-Write the R code required to add two plus two:
+There are two main pieces of R software we will use in our text analysis work throughout this tutorial, the [tidyverse](https://www.tidyverse.org/) metapackage and [tidytext](https://juliasilge.github.io/tidytext/). To clarify for yourself what tools you are using, load the two packages below (first tidyverse, and then tidytext) by replacing the `___` with the package names.
 
-```{r two-plus-two, exercise=TRUE}
+```{r library-tidyverse, exercise=TRUE}
+# load the tidyverse and tidytext packages
+library(___)
+library(___)
+```
+
+```{r library-tidyverse-solution}
+# load the tidyverse and tidytext packages
+library(tidyverse)
+library(tidytext)
+```
+
+```{r library-tidyverse-check}
+grade_code("The tidyverse metapackage contains dplyr, ggplot2, tidyr, and other packages for data science, and tidytext contains functions for text analysis using tidy data principles.")
+```
+
+### TED talk transcripts
+
+The TED talk transcripts are available to you in a dataframe called `ted_talks`. There are three variables in this dataset:
+
+- `talk_id`: the identifier from the TED website for this particular talk
+- `text`: the text of this TED talk
+- `speaker`: the main or first listed speaker (some TED talks have more than one speaker)
+
+```{r ted-talks, exercise=TRUE}
+# type `ted_talks` to load and see the dataset
 
 ```
 
-How to tokenize: single words, bigrams
-count, make a plot
-bigrams + network plot
-
-### Exercise with Code
-
-*Here's an exercise with some prepopulated code as well as `exercise.lines = 5` to provide a bit more initial room to work.*
-
-Now write a function that adds any two numbers and then call it:
-
-```{r add-function, exercise=TRUE, exercise.lines = 5}
-add <- function() {
-  
-}
+```{r ted-talks-solution}
+# type `ted_talks` to load and see the dataset
+ted_talks
 ```
+
+```{r ted-talks-check}
+grade_code("The talk by Hans Rosling is an excellent one, all about data. You should find it and watch it if you haven't!")
+```
+
+### How to tidy text data
+
+The `text` data is currently in a dataframe, but it is not **tidy** in the sense of being compatible with tidy tools. We need to transform it so that it is in a different format, with **one observation per row**.
+
+When we do text analysis, the observations we are interested in aren't the whole talks at once, but rather individual _tokens_. A **token** is a meaningful unit of text for analysis; in many cases, this just means a single word. THe process of **tokenization** identifies and breaks apart text into individual tokens. You can use [tidytext’s `unnest_tokens()` function](https://juliasilge.github.io/tidytext/reference/unnest_tokens.html) to accomplish all of this at once, both the tidying and the tokenization.
+
+```{r tidy-talks, exercise=TRUE}
+tidy_talks <- ted_talks %>% 
+  ___(word, text)
+```
+
+```{r tidy-talks-solution}
+tidy_talks <- ted_talks %>% 
+  unnest_tokens(word, text)
+```
+
+```{r tidy-talks-check}
+grade_code("Think about the syntax of this function a bit, because you'll be using it over and over again. We piped in the original, non-tidy dataset. We gave an argument that we want to tokenize _into_ and an argument that we are tokenizing _from_.")
+```
+
+### Tidy TED talks
+
+The `unnest_tokens()` function transforms non-tidy text data into tidy text data. It takes three arguments: 
+
+- the input dataframe that contains your text (often you will use the pipe `%>%` to send this argument to `unnest_tokens()`),
+- the output column that you want to unnest *to*, and 
+- the input column that you want to unnest *from*.
+
+```{r display-tidy-ted, exercise=TRUE, exercise.eval=TRUE}
+tidy_talks
+```
+
+What did `unnest_tokens()` do here? Instead of having `r nrow(ted_talks)` rows and reading each talk across the line in `text`, we now have `r scales::comma(nrow(tidy_talks))` rows and can read each talk _down_ the column in `word`. We have **tokenized** and **tidied** the text, as well as a few other transformations:
+
+- Other columns have been retained.
+- Punctuation has been stripped out.
+- Words have been converted to lower-case.
+
+These are defaults in the function that can be changed, if not appropriate to your analysis.
+
+### Tokenize to bigrams
+
+We said before that tokenization is the process of identifying and breaking apart text into **tokens**, meaningful units of text; those meaningful units of text are most often single words in text analysis but they do not have to be! We can move beyond single words to other kinds of tokens, like **n-grams**. An n-gram is a consecutive sequence of `n` words. Let's look at these TED talks and tokenize to bigrams, n-grams of order 2.
+
+- Use the same function for tokenizing and tidying to create the bigrams.
+
+```{r ted-bigram, exercise=TRUE}
+ted_bigrams <- ted_talks %>% 
+  ___(bigram, text, token = "ngrams", n = 2)
+
+ted_bigrams
+```
+
+```{r ted-bigram-solution}
+ted_bigrams <- ted_talks %>% 
+  unnest_tokens(bigram, text, token = "ngrams", n = 2)
+
+ted_bigrams
+```
+
+```{r ted-bigram-check}
+grade_code("The bigrams slide along the text to create overlapping sequences of two words. Notice what did and did not change from tokenizing to words. We used the `token` argument to specify a non-default tokenizer, and we specified the n-gram order of 2.")
+```
+
+### Most common TED talk words
+
+Let's go back to single words. What are the most common words in these TED talks? Now that our data in a tidy format, a whole world of analysis opportunity has opened up for us. We can start by computing term frequencies in just one line.
+
+- Use `count()` to find the most common words.
+
+```{r top-ted, exercise=TRUE, warning=FALSE, message=FALSE, error=FALSE}
+tidy_talks %>%
+  ___(word, sort = TRUE)
+```
+
+```{r top-ted-solution}
+tidy_talks %>%
+  count(word, sort = TRUE)
+```
+
+```{r top-ted-check}
+grade_code(correct = "That was just one line, but also these are not very interesting words.")
+```
+
+### Removing stop words
+
+Words like "the", "and", and "to" that aren't very interesting for a text analysis are called **stop words**. Often the best choice is to remove them. The tidytext package provides access to stop word lexicons, with a default list and then other options and other languages.
+
+```{r display-stop-words, exercise=TRUE, exercise.eval=TRUE}
+# try out the `language` argument, which takes two-letter language abbreviations
+get_stopwords()
+```
+
+When text data is in a tidy format, stop words can be removed using an [`anti_join()`](https://dplyr.tidyverse.org/reference/filter-joins.html). This type of join will "filter" or remove items that are in the right-hand side, keeping those in the left-hand side.
+
+- Within the `anti_join()`, add the call to `get_stopwords()`.
+- Add the arguments to `count()` so we count up words and sort them with the largest groups at the top.
+
+```{r stop-word, exercise=TRUE, warning=FALSE, message=FALSE, error=FALSE}
+tidy_talks %>%
+  anti_join(___) %>%
+  count(___)
+```
+
+```{r stop-word-solution}
+tidy_talks %>%
+  anti_join(get_stopwords()) %>%
+  count(word, sort = TRUE)
+```
+
+```{r stop-word-check}
+grade_code(correct = "These are now more interesting words and are starting to show the focus of TED talks.")
+```
+
+### Visualize top words
+
+Because we are using tidyverse tools, we can fluently pipe from the kind of code we just wrote straight to ggplot2 functions. One of the significant benefits of using tidy data principles is consistency with tools in wide use with broad support.
+
+- Remove stop words (the default list) via an `anti_join()`.
+- Create a plot with `n` on the x-axis and `word` on the y-axis.
+
+```{r stop-word-viz, exercise=TRUE, warning=FALSE, message=FALSE, error=FALSE}
+tidy_talks %>%
+  # remove stop words
+  ___ %>%
+  count(word, sort = TRUE) %>%
+  slice_max(n, n = 20) %>%
+  mutate(word = reorder(word, n)) %>%
+  # put `n` on the x-axis and `word` on the y-axis
+  ggplot(aes(___, ___)) +
+  geom_col()
+```
+
+```{r stop-word-viz-solution}
+tidy_talks %>%
+  # remove stop words
+  anti_join(get_stopwords()) %>%
+  count(word, sort = TRUE) %>%
+  slice_max(n, n = 20) %>%
+  mutate(word = reorder(word, n)) %>%
+  # put `n` on the x-axis and `word` on the y-axis
+  ggplot(aes(n, word)) +
+  geom_col()
+```
+
+```{r stop-word-viz-check}
+grade_code(correct = "The word \"laughter\" is so high because the transcripts include it when the audience laughed.")
+```
+
+### Compare TED talk vocabularies
+
+One of my favorite approaches to text analysis is to compare how different people or groups use language. There are lots of different ways to do this, but you can start with plain old word counts! Let's look at two TED talk speakers, [Jane Goodall](https://en.wikipedia.org/wiki/Jane_Goodall) and [Temple Grandin](https://en.wikipedia.org/wiki/Temple_Grandin), and count up the words they used in their TED talks.
+
+*If you want to explore other speakers, switch out the names and hit "Run Code".*
+
+- Use `filter()` to keep only the words spoken by Jane Goodall and Temple Grandin.
+- Remove the default list of stop words.
+- Use `count()` with two arguments to count up the term frequencies by `speaker` and `word`. (These first three steps could actually be taken in any order but this makes most sense to me.)
+- Come back and `filter()` again to only keep words spoken at least 10 times by both women.
+
+The function [`pivot_wider()` from tidyr](https://tidyr.tidyverse.org/reference/pivot_wider.html) pivots the long, tidy dataframe to a wide dataframe so we can more easily compare the two women's word counts.
+
+```{r ted-final-pivot, exercise=TRUE, warning=FALSE, message=FALSE, error=FALSE}
+tidy_talks %>%
+  ___(speaker %in% c("Jane Goodall", "Temple Grandin")) %>%
+  # remove stop words
+  ___ %>%
+  # count with two arguments
+  ___ %>%
+  group_by(word) %>%
+  ___(sum(n) > 10) %>%
+  ungroup() %>%
+  pivot_wider(names_from = "speaker", values_from = "n", values_fill = 0) 
+```
+
+```{r ted-final-pivot-solution}
+tidy_talks %>%
+  filter(speaker %in% c("Jane Goodall", "Temple Grandin")) %>%
+  # remove stop words
+  anti_join(get_stopwords()) %>%
+  # count with two arguments
+  count(speaker, word) %>%
+  group_by(word) %>%
+  filter(sum(n) > 10) %>%
+  ungroup() %>%
+  pivot_wider(names_from = "speaker", values_from = "n", values_fill = 0) 
+```
+
+```{r ted-final-pivot-check}
+grade_code(correct = "Using tidyverse functions lets us flexibly approach many kinds of text analysis questions.")
+```
+
+### Visualize vocabulary comparison
+
+It's interesting to look at the numbers themselves, but this would be better as a visualization. We can put one speaker on the x-axis and the other on the y-axis to compare their word counts. Words that appear close to the `slope = 1` line are used about evenly by both (since the talks were about the same length) and words far away are used more by one speaker.
+
+- Load the [ggrepel](https://ggrepel.slowkow.com/) package, for better plotting of text labels.
+- Use `geom_text_repel()` to place the text annotations on the plot.
+
+```{r ted-final-viz, fig.width=6, fig.height=6, exercise=TRUE, warning=FALSE, message=FALSE, error=FALSE}
+library(___)
+
+tidy_talks %>%
+  filter(speaker %in% c("Jane Goodall", "Temple Grandin")) %>%
+  anti_join(get_stopwords()) %>%
+  count(speaker, word) %>%
+  group_by(word) %>%
+  filter(sum(n) > 10) %>%
+  ungroup() %>%
+  pivot_wider(names_from = "speaker", values_from = "n", values_fill = 0) %>%
+  ggplot(aes(`Jane Goodall`, `Temple Grandin`)) +
+  geom_abline(color = "gray50", size = 1.2, alpha = 0.8, lty = 2) +
+  # use the special ggrepel geom for nicer text plotting
+  ___(aes(label = word)) +
+  coord_fixed()
+```
+
+
+```{r ted-final-viz-solution}
+library(ggrepel)
+
+tidy_talks %>%
+  filter(speaker %in% c("Jane Goodall", "Temple Grandin")) %>%
+  anti_join(get_stopwords()) %>%
+  count(speaker, word) %>%
+  group_by(word) %>%
+  filter(sum(n) > 10) %>%
+  ungroup() %>%
+  pivot_wider(names_from = "speaker", values_from = "n", values_fill = 0) %>%
+  ggplot(aes(`Jane Goodall`, `Temple Grandin`)) +
+  geom_abline(color = "gray50", size = 1.2, alpha = 0.8, lty = 2) +
+  # use the special ggrepel geom for nicer text plotting
+  geom_text_repel(aes(label = word)) +
+  coord_fixed()
+```
+
+```{r ted-final-viz-check}
+grade_code(correct = "Jane Goodall spoke about chimpanzees while Temple Grandin spoke about autism, but both women spoke about people and being different.")
+```
+
 
 ## 3. Shakespeare gets sentimental {data-progressive=TRUE}
 
@@ -838,7 +1103,7 @@ grade_code(correct = "Remember that we computed tf-idf per **headline** and did 
 
 <iframe src="https://giphy.com/embed/KeoXXlp8DwhdHfZLr6" width="480" height="382" frameBorder="0" class="giphy-embed" allowFullScreen></iframe><p><a href="https://giphy.com/gifs/edsullivanshow-girl-all-i-need-the-temptations-KeoXXlp8DwhdHfZLr6">via GIPHY</a></p>
 
-You have made it to your final case study of this tutorial! This case study demonstrates again how these kinds of techniques are applicable for many diverse kinds of texts. You have analyzed tktk, Shakespeare's plays, *New York Times* headlines, and now, in this final case study, you are going to use your text mining and sentiment analysis skills on a dataset of **lyrics from pop songs over 50 years**. All these texts are very different each other, but you are able to gain insight in each case because this approach is flexible and powerful.
+You have made it to your final case study of this tutorial! This case study demonstrates again how these kinds of techniques are applicable for many diverse kinds of texts. You have analyzed TED talks, Shakespeare's plays, *New York Times* headlines, and now, in this final case study, you are going to use your text mining and sentiment analysis skills on a dataset of **lyrics from pop songs over 50 years**. All these texts are very different each other, but you are able to gain insight in each case because this approach is flexible and powerful.
 
 This dataset was created by [Kaylin Pavlik](https://github.com/walkerkq/musiclyrics), who published [her own analysis of these song lyrics](https://www.kaylinpavlik.com/50-years-of-pop-music/). The dataset consists of songs that were listed on Billboard's Year-End Hot 100 over five decades. You'll have a dataset available called `song_lyrics`, with variables:
 
@@ -980,7 +1245,7 @@ song_lyrics %>%
 
 ### Pop vocabulary over decades
 
-We could use any of the text analysis techniques we have explored so far in our case studies with these song lyrics, but let's take this opportunity to go a bit further and learn how to build linear models with text data. Specifically, let's build on the ideas in the [modeling section of *R for Data Science*](https://r4ds.had.co.nz/model-intro.html), especially the chapter on [many models](https://r4ds.had.co.nz/many-models.html). 
+We could use any of the text analysis techniques we have explored so far in our case studies with these song lyrics, but let's take this opportunity to go a bit further and learn how to build linear models with text data to understand how the pop vocabulary is changing over time. Specifically, let's build on the ideas in the [modeling section of *R for Data Science*](https://r4ds.had.co.nz/model-intro.html), especially the chapter on [many models](https://r4ds.had.co.nz/many-models.html). 
 
 ***NOTE:*** *If you haven't read that chapter before, you may want to skim it before finishing this case study.* 
 

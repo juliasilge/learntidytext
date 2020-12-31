@@ -53,3 +53,11 @@ shakespeare <- shakespeare %>% select(title, text) %>%
 write_rds(shakespeare, here::here("data", "shakespeare.rds"))
 
 #---------------------------------------------------------------------#
+
+library(tidyverse)
+
+read_csv("TEDonly_speakers_final.csv") %>%
+  select(talk_id = Talk_ID, text, speaker = speaker_1) %>%
+  write_rds(here::here("data", "ted_talks.rds"))
+
+

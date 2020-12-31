@@ -1,0 +1,108 @@
+/******
+custom css, based on Allison Horst's work
+*******/
+
+body {
+  background-color: #ffffff;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 12;
+}
+
+em {
+    font-family: 'Open Sans', sans-serif;
+    color: slategrey;
+}
+
+.ace-tm {
+    background-color: #ffffff;
+    color: black;
+}
+
+.panel, pre {
+    border-radius: 0;
+    border-color: #e0e0e0;
+    background-color: #ffffff;
+}
+
+.panel-default > .panel-heading {
+    color: #555555;
+    background-color: #ffffff;
+    border-color: #dddddd;
+}
+
+.topicsList .topic {
+    font-family: 'Open Sans Condensed', sans-serif;
+    line-height: 40px;
+    font-size: 15px;
+    padding-left: 10px;
+    cursor: pointer;
+    background-repeat: no-repeat;
+    background-size: 2px 80px;
+    background-position: left 100%;
+        background-position-y: 100%;
+    background-image: url(images/topicProgress.png);
+    border-bottom: 1px solid midnightblue;
+    -webkit-transition-property: background-position;
+    transition-property: background-position;
+    -webkit-transition-duration: 0.25s;
+    transition-duration: 0.25s;
+}
+
+.topicsList .topic.current {
+    font-family: 'Open Sans Condensed', sans-serif;
+    background-color: darkcyan;
+    color: #ffffff;
+    border: 0px;
+}
+
+code {
+    font-family: 'Roboto Mono', monospace;
+    color: gray;
+    background-color: #DDF0F0;
+    font-size: 12px;
+}
+
+a {
+    font-family: 'Open Sans', sans-serif;
+    color: midnightblue;
+    text-decoration: none;
+}
+
+.btn-primary, .btn-success, .btn-info {
+    color: #ffffff;
+    background-color: darkcyan;
+    background-image: none;
+    border: none;
+    font-family: 'Open Sans Condensed', sans-serif;
+}
+
+.btn-default {
+    color: #ffffff;
+    background-color: darkcyan;
+    background-image: none;
+    border: none;
+    font-family: 'Open Sans Condensed', sans-serif;
+}
+
+h2 {
+  color: midnightblue;
+  font-family: 'Open Sans Condensed', sans-serif;
+}
+
+h3 {
+  color: midnightblue;
+  font-family: 'Open Sans Condensed', sans-serif;
+}
+
+h4 {
+  color: midnightblue;
+  font-family: 'Open Sans Condensed', sans-serif;
+}
+
+h5 {
+    color: darkdarkcyan;
+    background-color: white;
+    display: inline-block;
+    font-family: 'Open Sans Condensed', sans-serif;
+    font-size: 16px;
+}

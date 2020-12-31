@@ -42,7 +42,7 @@ tidy_lyrics <- song_lyrics %>% unnest_tokens(word, lyrics)
 
 ## 1. Introduction
 
-[![tidytext](images/tidytext.png)](https://juliasilge.shinyapps.io/learntidytext/)
+![](images/tidytext.png)
 
 Text datasets are diverse and ubiquitous, and tidy data principles provide an approach to make text mining easier, more effective, and consistent with tools already in wide use. In this tutorial, you will develop your text mining skills using the [tidytext](https://juliasilge.github.io/tidytext/) package in R, along with other [tidyverse](https://www.tidyverse.org/) tools. You will apply these skills in several case studies, which will allow you to: 
 
@@ -1143,7 +1143,7 @@ grade_code(correct = "The effect size on the x-axis tells us whether a word is b
 
 ## 6. Going further
 
-Congratulations! You have finished these four case studies and learned so much about how to analyze text data with tidy data principles. There are resources available for you to **extend your learning**.
+Congratulations! You have finished these four case studies and learned so much about how to analyze text data with tidy data principles. We've linked to the [documentation site for tidytext](https://juliasilge.github.io/tidytext/) several times throughout this tutorial, but there are also other resources available for you to **extend your learning**.
 
 ### Learn more about exploratory data analysis for text
 

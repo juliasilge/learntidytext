@@ -1,0 +1,13 @@
+name: learntidytext
+title: learntidytext
+username:
+account: juliasilge
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 3436761
+bundleId: 4044534
+url: https://juliasilge.shinyapps.io/learntidytext/
+when: 1609395077.97871
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: .Rbuildignore|data-raw/prep.R

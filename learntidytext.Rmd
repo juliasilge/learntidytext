@@ -502,28 +502,177 @@ grade_code(correct = "These plots show how sentiment changes through these plays
 ```
 
 
-## 4. Analyzing news headlines {data-progressive=TRUE}
+## 4. Newspaper headlines {data-progressive=TRUE}
 
 <iframe src="https://giphy.com/embed/7IW6Jnw29TYmgkuu3M" width="480" height="270" frameBorder="0" class="giphy-embed" allowFullScreen></iframe><p><a href="https://giphy.com/gifs/usnationalarchives-paper-newspaper-printing-press-7IW6Jnw29TYmgkuu3M">via GIPHY</a></p>
 
-
+You have already learned a lot in the first two case studies of this tutorial, from how to transform text to a tidy format and how to use sentiment lexicons. In this third case study, we will learn some new ways to analyze text, using a dataset of newspaper headlines. These particular headlines are from the *New York Times* during November 2020. 
 
 [![NYT](images/poweredby_nytimes_150a.png)](https://developer.nytimes.com/)
 
+The *New York Times* is a busy paper; there were over 5,000 headlines during this period! The dataset we'll be working with has two variables:
+
+- `headline`, the text of the headline as published by the NYT
+- `section`, the main section of the paper that the article with this headline was published in
+
+Headlines are interesting for many reasons. One important one is that news organizations in general and the *New York Times* in particular have come under criticism for their practices in crafting headlines, from excessive use of passive voice when reporting killings by the police to how outright lies by politicians are handled in headlines. Text data is often fraught and complex, and that is certainly true for newspaper headlines!
+
+Use `count()` with `sort = TRUE` so you can see how many different values for `section` there are in this dataset from November 2020 and which had the most headlines.
+
+```{r count-section, exercise=TRUE, warning=FALSE, message=FALSE, error=FALSE}
+nyt_headlines %>%
+  ___
+```
+
+```{r count-section-solution}
+nyt_headlines %>%
+  count(section, sort = TRUE)
+```
+
+```{r count-section-check}
+grade_code("November 2020 was a busy month in the United States! The next most used categories in this dataset are headlines about world news and the opinion page.")
+```
+
+### Tidying newspaper headlines
+
+This dataset contains over 5000 newspaper headlines, from November 2020. The headlines are all in one column, so they are not yet in a tidy format, ready for our tidy set of tools. It's time for you to tidy these headlines!
+
+- Pipe the `nyt_headlines` object to the next line.
+- Use `unnest_tokens()` to tokenize and tidy the `headlines` column into a new `word` column.
+
+```{r tidy-headlines, exercise=TRUE, warning=FALSE, message=FALSE, error=FALSE}
+# pipe nyt_headlines to the next line
+tidy_nyt <- ___ %>% 
+  # transform the headline column to a word column
+  ___
+
+# print tidy_lyrics
+tidy_nyt
+```
+
+```{r tidy-headlines-solution}
+# pipe song_lyrics to the next line
+tidy_nyt <- nyt_headlines %>%
+  mutate(id = row_number()) %>%
+  # transform the `headline` column to a `word` column
+  unnest_tokens(word, headline)
+
+# print tidy_lyrics
+tidy_nyt
+```
+
+```{r tidy-headlines-check}
+grade_code("This is the third time you have tidied a text dataset in this tutorial. Notice that you use whatever column name the text happens to be in. You also can give the output whatever name is most convenient for you; it does not necessarily have to be `word`.")
+```
+
+### Most common headline words
+
+What are the most common words in these headlines? Analyzing headlines is not quite like analyzing other kinds of text, but to be honest, that turns out to be a lot of the time. Many text datasets have specific characteristics (document length, vocabulary, semantic patterns, etc) that make them stand out compared to other datasets, even when you look at just the most common words. 
+
+- Use `count()` to tally up the words.
+- Set `sort = TRUE` to order by the count, instead of alphabetically.
+
+```{r top-nyt, exercise=TRUE, warning=FALSE, message=FALSE, error=FALSE}
+tidy_nyt %>%
+  ___
+```
+
+```{r top-nyt-solution}
+tidy_nyt %>%
+  count(word, sort = TRUE)
+```
+
+```{r top-nyt-check}
+grade_code(correct = "The word \"election\" is used more in this dataset than the word \"and\"! This is pretty wild.")
+```
+
+### Removing stop words
+
+The overall top words tell us a lot about this corpus of headlines, but let's remove the default list of stop words to get a better idea of what was being reported at the NYT in November 2020. Remember from the first case study that you remove stop words using an `anti_join()`.
+
+```{r nyt-stop-words, exercise=TRUE, warning=FALSE, message=FALSE, error=FALSE}
+tidy_nyt %>%
+  ___ %>%
+  count(word, sort = TRUE)
+```
+
+```{r nyt-stop-words-solution}
+tidy_nyt %>%
+  anti_join(get_stopwords()) %>%
+  count(word, sort = TRUE)
+```
+
+```{r nyt-stop-words-check}
+grade_code(correct = "In November 2020, election results were in headlines at a much higher rate than coronavirus.")
+```
+
+### What are the newspaper sections about?
+
+A central question in text mining is how to quantify what different documents or categories of documents are about. One approach to measure this is to use _tf-idf_, term frequency-inverse document frequency. A word's _term frequency_ is how frequently it occurs in a document. A word's _inverse document frequency_ is a weight, which decreases the weight for commonly used words and increases the weight for words that are not used very much in a collection of documents:
+
+$$idf(\text{term}) = \ln{\left(\frac{n_{\text{documents}}}{n_{\text{documents containing term}}}\right)}$$
+If you multiply the two together, you get tf-idf, a statistic intended to measure how important a word is to a document in a collection (or corpus) of documents.
+
+Let's look at this in the context of the NYT headlines.
+
+```{r nyt-stop-words, exercise=TRUE, warning=FALSE, message=FALSE, error=FALSE}
+tidy_nyt %>%
+  ___ %>%
+  count(word, sort = TRUE)
+```
+
+```{r nyt-stop-words-solution}
+nyt_tf_idf <- tidy_nyt %>%
+  count(section, id, word) %>%
+  bind_tf_idf(word, id, n) %>%
+  arrange(-tf_idf)
+```
+
+```{r nyt-stop-words-check}
+grade_code(correct = "In November 2020, election results were in headlines at a much higher rate than coronavirus.")
+```
 
 
+### Visualize tf-idf
 
-### Quiz
+```{r nyt-stop-words, exercise=TRUE, warning=FALSE, message=FALSE, error=FALSE}
+tidy_nyt %>%
+  ___ %>%
+  count(word, sort = TRUE)
+```
 
-*You can include any number of single or multiple choice questions as a quiz. Use the `question` function to define a question and the `quiz` function for grouping multiple questions together.*
+```{r nyt-stop-words-solution}
+sections <- c("Food", "Opinion", "Technology", "The Upshot")
 
-Some questions to verify that you understand the purposes of various base and recommended R packages:
+nyt_tf_idf %>%
+  filter(!near(tf, 1)) %>%
+  filter(section %in% sections) %>%
+  group_by(section) %>%
+  slice_max(tf_idf, n = 10, with_ties = FALSE) %>%
+  ungroup() %>%
+  mutate(word = factor(word, levels = rev(unique(word)))) %>%
+  ggplot(aes(tf_idf, word, fill = section)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~section, ncol = 2, scales = "free")
+```
+
+```{r nyt-stop-words-check}
+grade_code(correct = "In November 2020, election results were in headlines at a much higher rate than coronavirus.")
+```
+
+### Tokenize headlines to bigrams
+
+### Compute tf-idf of bigrams
+
+### Highest tf-idf bigrams
+
+
 
 ## 5. Singing a different tune {data-progressive=TRUE}
 
 <iframe src="https://giphy.com/embed/KeoXXlp8DwhdHfZLr6" width="480" height="382" frameBorder="0" class="giphy-embed" allowFullScreen></iframe><p><a href="https://giphy.com/gifs/edsullivanshow-girl-all-i-need-the-temptations-KeoXXlp8DwhdHfZLr6">via GIPHY</a></p>
 
-You have made it to your final case study of this tutorial! This case study demonstrates again how these kinds of techniques are applicable for many diverse kinds of texts. You have analyzed tktk, Shakespeare's plays, tktk, and now, in this final case study, you are going to use your text mining and sentiment analysis skills on a dataset of **lyrics from pop songs over 50 years**. All these texts are very different each other, but you are able to gain insight in each case because this approach is flexible and powerful.
+You have made it to your final case study of this tutorial! This case study demonstrates again how these kinds of techniques are applicable for many diverse kinds of texts. You have analyzed tktk, Shakespeare's plays, *New York Times* headlines, and now, in this final case study, you are going to use your text mining and sentiment analysis skills on a dataset of **lyrics from pop songs over 50 years**. All these texts are very different each other, but you are able to gain insight in each case because this approach is flexible and powerful.
 
 This dataset was created by [Kaylin Pavlik](https://github.com/walkerkq/musiclyrics), who published [her own analysis of these song lyrics](https://www.kaylinpavlik.com/50-years-of-pop-music/). The dataset consists of songs that were listed on Billboard's Year-End Hot 100 over five decades. You'll have a dataset available called `song_lyrics`, with variables:
 
@@ -667,11 +816,11 @@ song_lyrics %>%
 
 We could use any of the text analysis techniques we have explored so far in our case studies with these song lyrics, but let's take this opportunity to go a bit further and learn how to build linear models with text data. Specifically, let's build on the ideas in the [modeling section of *R for Data Science*](https://r4ds.had.co.nz/model-intro.html), especially the chapter on [many models](https://r4ds.had.co.nz/many-models.html). 
 
-*If you haven't read that chapter before, you may want to skim it before finishing this case study.* 
+***NOTE:*** *If you haven't read that chapter before, you may want to skim it before finishing this case study.* 
 
 We'll create our linear models in several steps. First, let's create a dataset of `word_counts`.
 
-- Start by counting to find the number of words used in each song each year.
+- Start by counting to find the number of words used in each `song` each `year` (use two arguments).
 - Next, group by year and create a column via `mutate()` for the total words used each year.
 - After ungrouping, group by word.
 - Use `filter()` to keep only words used above a threshold, of 500 total uses in the dataset. (We don't want to try to train models on words used only a handful of times.)
@@ -679,7 +828,6 @@ We'll create our linear models in several steps. First, let's create a dataset o
 ```{r lyric-word-counts, exercise=TRUE, warning=FALSE, message=FALSE, error=FALSE}
 word_counts <- tidy_lyrics %>% 
   anti_join(get_stopwords()) %>% 
-  # count with two arguments to find the number of words used in each song each year
   ___ %>% 
   # group by `year`
   ___ %>%
@@ -698,7 +846,6 @@ word_counts
 ```{r lyric-word-counts-solution}
 word_counts <- tidy_lyrics %>% 
   anti_join(get_stopwords()) %>% 
-  # count with two arguments to find the number of words used in each song each year
   count(year, word) %>% 
   # group by `year`
   group_by(year) %>%
@@ -725,12 +872,12 @@ Now we can use the new `word_counts` dataset to train many linear models, one pe
 - Create list-columns by nesting the word count data, nesting by `word`.
 - Use `mutate()` to create a new column for our models. We are training one model for each word, with `year` as the predictor. 
 
- **NOTE:** *We are creating a slightly more complicated model than shown in the [many models](https://r4ds.had.co.nz/many-models.html) chapter, because we are modeling word counts, rather than a continuous property. This is a generalized linear model `glm()` using numbers of "successes" and "failures" as the response; this approach works better for this kind of data.*
+***NOTE:*** *We are creating a slightly more complicated model than shown in the [many models](https://r4ds.had.co.nz/many-models.html) chapter, because we are modeling word counts, rather than a continuous property. The following is a generalized linear model `glm()` using numbers of "successes" (i.e. counts for a specific word) and "failures" (i.e. the total counts for the year) as the response; this approach works better for this kind of data.*
 
 - Within the call to `summarize()`, use the broom function `tidy()` to summarize the `model` objects we just created for each word.
 - Use `filter()` to only keep the `"year"` terms in the output, since we are not interested in the intercepts.
 
-```{r many-models, exercise=TRUE, warning=FALSE, message=FALSE, error=FALSE}
+```{r many-models-setup}
 word_counts <- tidy_lyrics %>% 
   anti_join(get_stopwords()) %>% 
   count(year, word) %>% 
@@ -743,13 +890,26 @@ word_counts <- tidy_lyrics %>%
 
 library(broom)
 
+slopes <- word_counts %>% 
+  nest_by(word) %>%
+  mutate(model = list(glm(cbind(n, year_total) ~ year, 
+                          family = "binomial", data = data))) %>%
+  summarize(tidy(model)) %>%
+  ungroup() %>%
+  filter(term == "year") %>%
+  mutate(p.value = p.adjust(p.value)) %>%
+  arrange(estimate)
+```
+
+
+```{r many-models, exercise=TRUE, warning=FALSE, message=FALSE, error=FALSE, exercise.setup = "many-models-setup"}
+library(broom)
+
 slopes <- word_counts %>%
-  # nest by `word`
   nest_by(___) %>%
   # create a new column for our `model` objects
   ___(model = list(glm(cbind(n, year_total) ~ year, 
                           family = "binomial", data = data))) %>%
-  # tidy the `model`
   summarize(tidy(___)) %>%
   ungroup() %>%
   # filter to only keep the "year" terms
@@ -761,25 +921,13 @@ slopes
 ```
 
 ```{r many-models-solution}
-word_counts <- tidy_lyrics %>% 
-  anti_join(get_stopwords()) %>% 
-  count(year, word) %>% 
-  group_by(year) %>%
-  mutate(year_total = sum(n)) %>% 
-  ungroup() %>% 
-  group_by(word) %>% 
-  filter(sum(n) > 500) %>% 
-  ungroup()
-
 library(broom)
 
 slopes <- word_counts %>%
-  # nest by `word`
   nest_by(word) %>%
   # create a new column for our `model` objects
   mutate(model = list(glm(cbind(n, year_total) ~ year, 
                           family = "binomial", data = data))) %>%
-  # tidy the `model`
   summarize(tidy(model)) %>%
   ungroup() %>%
   # filter to only keep the "year" terms
@@ -798,29 +946,7 @@ grade_code(correct = "This is some pretty hefty statistics you are doing now; yo
 
 It's time for the last exercise in this case study on song lyrics! Let's create a visualization for all these models we trained. The visualization we are going to create is what is called a [volcano plot](https://en.wikipedia.org/wiki/Volcano_plot_(statistics)), comparing effect size and statistical significance.
 
-```{r lyric-volcano, out.width='100%', fig.width=9, exercise=TRUE, warning=FALSE, message=FALSE, error=FALSE}
-word_counts <- tidy_lyrics %>% 
-  anti_join(get_stopwords()) %>% 
-  count(year, word) %>% 
-  group_by(year) %>% 
-  mutate(year_total = sum(n)) %>% 
-  ungroup() %>% 
-  group_by(word) %>% 
-  filter(sum(n) > 500) %>% 
-  ungroup()
-
-library(broom)
-
-slopes <- word_counts %>% 
-  nest_by(word) %>%
-  mutate(model = list(glm(cbind(n, year_total) ~ year, 
-                          family = "binomial", data = data))) %>%
-  summarize(tidy(model)) %>%
-  ungroup() %>%
-  filter(term == "year") %>%
-  mutate(p.value = p.adjust(p.value)) %>%
-  arrange(estimate)
-
+```{r lyric-volcano, out.width='100%', fig.height=6, fig.width=9, exercise=TRUE, warning=FALSE, message=FALSE, error=FALSE,  exercise.setup = "many-models-setup"}
 slopes %>%
   # put `estimate` on the x-axis and `p.value` on the y-axis
   ggplot(aes(___)) +
@@ -833,28 +959,6 @@ slopes %>%
 ```
 
 ```{r lyric-volcano-solution}
-word_counts <- tidy_lyrics %>% 
-  anti_join(get_stopwords()) %>% 
-  count(year, word) %>% 
-  group_by(year) %>% 
-  mutate(year_total = sum(n)) %>% 
-  ungroup() %>% 
-  group_by(word) %>% 
-  filter(sum(n) > 500) %>% 
-  ungroup()
-
-library(broom)
-
-slopes <- word_counts %>% 
-  nest_by(word) %>%
-  mutate(model = list(glm(cbind(n, year_total) ~ year, 
-                          family = "binomial", data = data))) %>%
-  summarize(tidy(model)) %>%
-  ungroup() %>%
-  filter(term == "year") %>%
-  mutate(p.value = p.adjust(p.value)) %>%
-  arrange(estimate)
-
 slopes %>%
   # put `estimate` on the x-axis and `p.value` on the y-axis
   ggplot(aes(estimate, p.value)) +

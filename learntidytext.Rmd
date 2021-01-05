@@ -21,6 +21,7 @@ library(tidytext)
 library(stopwords)
 library(ggrepel)
 library(scales)
+library(plotly)
 library(here)
 library(gradethis)
 knitr::opts_chunk$set(echo = FALSE, exercise.checker = gradethis::grade_learnr)
@@ -993,8 +994,7 @@ We've focused on single word (unigrams) in this case study so far, but you can c
 nyt_bigrams <- nyt_headlines %>%
   mutate(id = row_number()) %>%
   # tidy/tokenize with n = 2
-  ___(bigram, headline, token = "ngrams", ___) %>%
-  arrange(id)
+  ___(bigram, headline, token = "ngrams", ___)
 
 nyt_bigrams
 ```
@@ -1003,8 +1003,7 @@ nyt_bigrams
 nyt_bigrams <- nyt_headlines %>%
   mutate(id = row_number()) %>%
   # tidy/tokenize with n = 2
-  unnest_tokens(bigram, headline, token = "ngrams", n = 2) %>%
-  arrange(id)
+  unnest_tokens(bigram, headline, token = "ngrams", n = 2)
 
 nyt_bigrams
 ```
@@ -1379,30 +1378,35 @@ grade_code(correct = "This is some pretty hefty statistics you are doing now; yo
 
 ### Visualizing many models
 
-It's time for the last exercise in this case study on song lyrics! Let's create a visualization for all these models we trained. The visualization we are going to create is what is called a [volcano plot](https://en.wikipedia.org/wiki/Volcano_plot_(statistics)), comparing **effect size** and **statistical significance**.
+It's time for the last exercise in this case study on song lyrics! Let's create a visualization for all these models we trained with [plotly](https://plotly-r.com/). The visualization we are going to create is what is called a [volcano plot](https://en.wikipedia.org/wiki/Volcano_plot_(statistics)), comparing **effect size** and **statistical significance**. You can use your mouse to see the words in the tooltip of the interactive plot.
 
-```{r lyric-volcano, out.width='100%', fig.height=5, fig.width=9, exercise=TRUE, warning=FALSE, message=FALSE, error=FALSE,  exercise.setup = "many-models-setup"}
-slopes %>%
+```{r lyric-volcano, out.width='100%', out.height="500px", exercise=TRUE, warning=FALSE, message=FALSE, error=FALSE,  exercise.setup = "many-models-setup"}
+library(plotly)
+
+p <- slopes %>%
   # put `estimate` on the x-axis and `p.value` on the y-axis
-  ggplot(aes(___)) +
+  ggplot(aes(___, label = word)) +
   geom_vline(xintercept = 0, lty = 2, size = 1.5, alpha = 0.7, color = "gray50") +
   # make a scatter plot using `geom_point()`
   ___(color = "darkcyan", alpha = 0.5, size = 2.5) +
-  # add the words with `geom_text()`
-  ___(aes(label = word), hjust = 0, vjust = 0, check_overlap = TRUE) +
   scale_y_log10()
+
+# call ggplotly() on the plot we made above
+ggplotly(___)
 ```
 
 ```{r lyric-volcano-solution}
-slopes %>%
+library(plotly)
+
+p <- slopes %>%
   # put `estimate` on the x-axis and `p.value` on the y-axis
-  ggplot(aes(estimate, p.value)) +
+  ggplot(aes(estimate, p.value, label = word)) +
   geom_vline(xintercept = 0, lty = 2, size = 1.5, alpha = 0.7, color = "gray50") +
   # make a scatter plot using `geom_point()`
   geom_point(color = "darkcyan", alpha = 0.5, size = 2.5) +
-  # add the words with `geom_text()`
-  geom_text(aes(label = word), hjust = 0, vjust = 0, check_overlap = TRUE) +
   scale_y_log10()
+
+ggplotly(p)
 ```
 
 ```{r lyric-volcano-check}

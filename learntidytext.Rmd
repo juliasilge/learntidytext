@@ -166,7 +166,7 @@ The `unnest_tokens()` function transforms non-tidy text data into tidy text data
 - the output column that you want to unnest *to*, and 
 - the input column that you want to unnest *from*.
 
-```{r display-tidy-ted, exercise=TRUE, exercise.eval=TRUE}
+```{r display-tidy-ted, echo=TRUE}
 tidy_talks
 ```
 
@@ -226,8 +226,10 @@ grade_code(correct = "That was just one line, but also these are not very intere
 
 Words like "the", "and", and "to" that aren't very interesting for a text analysis are called **stop words**. Often the best choice is to remove them. The tidytext package provides access to stop word lexicons, with a default list and then other options and other languages.
 
-```{r display-stop-words, exercise=TRUE, exercise.eval=TRUE}
-# try out the `language` argument, which takes two-letter language abbreviations like "es"
+- First, run the code the way it is.
+- Next, try out the `language` argument, which takes two-letter language abbreviations like `"es"`.
+
+```{r display-stop-words, exercise=TRUE}
 get_stopwords()
 ```
 

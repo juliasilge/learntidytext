@@ -472,7 +472,7 @@ grade_code(correct = 'Notice how the most common words in the data frame are wor
 
 Sentiment analysis is a way to measure the attitudes and opinions expressed in text, and can be approached in multiple ways. A common approach is to use **sentiment lexicons**, lists of words that have been curated and scored in some way. Lexicons are typically created by NLP researchers and some have licenses that restrict their use, for example in commercial settings. The `"bing"` lexicon of Hu and Liu (2004) is a general purpose English lexicon (which can be used in commercial settings with attribution) that categorizes words as either positive or negative.
 
-```{r lexicon, exercise=TRUE, exercise.eval=TRUE}
+```{r lexicon, exercise=TRUE}
 get_sentiments("bing")
 ```
 
@@ -496,6 +496,10 @@ question('Which of the following words is most unlikely to be found in a sentime
 
 When text data is in a tidy data structure like we are working with in this tutorial, with **one word per row**, you can perform sentiment analysis using an inner join, like you may have worked with in SQL or in [dplyr](https://dplyr.tidyverse.org/). Remember that the sentiment lexicon you just saw is a data frame with one word per row. When your text data is also stored in that form, with one word per row, then the result of an inner join between those two datasets will give you all the words that are both in the text you are analyzing and the lexicon.
 
+<div class = "row">
+
+<div class = "col-md-6">
+
 Let's say you have the following text dataset, available in your environment as `text`:
 
 ```{r}
@@ -503,11 +507,17 @@ tibble(word = c("chocolate", "makes", "me", "happy",
                 "but", "this", "movie", "is", "sad"))
 ```
 
+</div>
+
+<div class = "col-md-6">
 And the following sentiment lexicon, in your environment as `lexicon`:
 
 ```{r}
 tibble(word = c("happy", "sad", "chocolate", "broccoli"))
 ```
+
+</div>
+</div>
 
 ```{r chocolate-quiz}
 question('Which word will be in the output of an inner join between this text dataset and this sentiment lexicon?',

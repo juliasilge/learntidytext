@@ -5,9 +5,9 @@ account: juliasilge
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 3436761
-bundleId: 4061379
+bundleId: 4172878
 url: https://juliasilge.shinyapps.io/learntidytext/
-when: 1609869923.82576
+when: 1612301630.80662
 asMultiple: FALSE
 asStatic: FALSE
 ignoredFiles: .Rbuildignore|CODE_OF_CONDUCT.md|LICENSE.md|README.md|data-raw/prep.R|data-raw/TEDonly_speakers_final.csv

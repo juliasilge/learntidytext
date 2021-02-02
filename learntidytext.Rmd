@@ -51,7 +51,7 @@ tidy_lyrics <- song_lyrics %>% unnest_tokens(word, lyrics)
 
 ![](images/tidytext.png)
 
-Text datasets are diverse and ubiquitous, and **tidy data principles** provide an approach to make text mining easier, more effective, and consistent with tools already in wide use. In this tutorial, you will develop your text mining skills using the [tidytext](https://juliasilge.github.io/tidytext/) package in R, along with other [tidyverse](https://www.tidyverse.org/) tools. You will apply these skills in several case studies, which will allow you to: 
+Text data sets are diverse and ubiquitous, and **tidy data principles** provide an approach to make text mining easier, more effective, and consistent with tools already in wide use. In this tutorial, you will develop your text mining skills using the [tidytext](https://juliasilge.github.io/tidytext/) package in R, along with other [tidyverse](https://www.tidyverse.org/) tools. You will apply these skills in several case studies, which will allow you to: 
 
 - practice important data handling skills, 
 - learn about the ways text analysis can be applied, and 
@@ -79,7 +79,7 @@ You can type in these code exercises. **Give it a try now!** If you mess up, cli
 
 In the exercise above, type `library(tidytext)` and click "Submit Answer".
 
-This tutorial is organized into **four case studies**, each with its own dataset:
+This tutorial is organized into **four case studies**, each with its own data set:
 
 - transcripts of TED talks
 - a collection of comedies and tragedies by Shakespeare
@@ -96,7 +96,7 @@ To get the most from this tutorial, you should have some familiarity with R and 
 
 <iframe src="https://giphy.com/embed/495RS6uWPjq008HACu" width="480" height="270" frameBorder="0" class="giphy-embed" allowFullScreen></iframe><p><a href="https://giphy.com/gifs/usnationalarchives-applause-hollywood-audience-495RS6uWPjq008HACu">via GIPHY</a></p>
 
-The first case study of this tutorial uses a dataset of TED talks created by Katherine M. Kinnaird and John Laudun for their paper ["TED Talks as Data"](https://doi.org/10.22148/16.042). The specific talks we are using are from the main TED event, and the dataset was curated in the summer of 2018.
+The first case study of this tutorial uses a data set of TED talks created by Katherine M. Kinnaird and John Laudun for their paper ["TED Talks as Data"](https://doi.org/10.22148/16.042). The specific talks we are using are from the main TED event, and the data set was curated in the summer of 2018.
 
 There are two main pieces of R software we will use in our text analysis work throughout this tutorial, the [tidyverse](https://www.tidyverse.org/) metapackage and [tidytext](https://juliasilge.github.io/tidytext/). To clarify for yourself what tools you are using, load the two packages below (first tidyverse, and then tidytext) by replacing the `___` with the package names.
 
@@ -118,19 +118,19 @@ grade_code("The tidyverse metapackage contains dplyr, ggplot2, tidyr, and other 
 
 ### TED talk transcripts
 
-The TED talk transcripts are available to you in a dataframe called `ted_talks`. There are three variables in this dataset:
+The TED talk transcripts are available to you in a dataframe called `ted_talks`. There are three variables in this data set:
 
 - `talk_id`: the identifier from the TED website for this particular talk
 - `text`: the text of this TED talk
 - `speaker`: the main or first listed speaker (some TED talks have more than one speaker)
 
 ```{r ted-talks, exercise=TRUE}
-# glimpse `ted_talks` to see what is in the dataset
+# glimpse `ted_talks` to see what is in the data set
 glimpse(___)
 ```
 
 ```{r ted-talks-solution}
-# glimpse `ted_talks` to see what is in the dataset
+# glimpse `ted_talks` to see what is in the data set
 glimpse(ted_talks)
 ```
 
@@ -155,7 +155,7 @@ tidy_talks <- ted_talks %>%
 ```
 
 ```{r tidy-talks-check}
-grade_code("Think about the syntax of this function a bit, because you'll be using it over and over again. We piped in the original, non-tidy dataset. We gave an argument that we want to tokenize _into_ and an argument that we are tokenizing _from_.")
+grade_code("Think about the syntax of this function a bit, because you'll be using it over and over again. We piped in the original, non-tidy data set. We gave an argument that we want to tokenize _into_ and an argument that we are tokenizing _from_.")
 ```
 
 ### Tidy TED talks
@@ -293,7 +293,7 @@ grade_code(correct = "The word \"laughter\" is so high because the transcripts i
 
 One of my favorite approaches to text analysis is to compare how different people or groups use language. There are lots of different ways to do this, but you can start with plain old word counts! Let's look at two TED talk speakers, [Jane Goodall](https://en.wikipedia.org/wiki/Jane_Goodall) and [Temple Grandin](https://en.wikipedia.org/wiki/Temple_Grandin), and count up the words they used in their TED talks.
 
-*If you want to explore other speakers, switch out for different speakers names from the dataset and hit "Run Code", after finishing the exercise.*
+*If you want to explore other speakers, switch out for different speakers' names from the data set and hit "Run Code", after finishing the exercise.*
 
 - Use `filter()` to keep only the words spoken by Jane Goodall and Temple Grandin.
 - Remove the default list of stop words.
@@ -387,9 +387,9 @@ grade_code(correct = "Jane Goodall spoke about chimpanzees while Temple Grandin 
 
 <iframe src="https://giphy.com/embed/10pVeIaRAbekUw" width="480" height="336" frameBorder="0" class="giphy-embed" allowFullScreen></iframe><p><a href="https://giphy.com/gifs/pri-shakespeare-studio-360-10pVeIaRAbekUw">via GIPHY</a></p>
 
-In the first case study of this tutorial, you learned about how to transform text data into a tidy format, with one token per row, and how to summarize and visualize the results. Our second case study uses a dataset of classic plays by Shakespeare, made available by [Project Gutenberg](https://www.gutenberg.org/). We will again tidy the text, and we will learn how to implement **sentiment analysis**.
+In the first case study of this tutorial, you learned about how to transform text data into a tidy format, with one token per row, and how to summarize and visualize the results. Our second case study uses a data set of classic plays by Shakespeare, made available by [Project Gutenberg](https://www.gutenberg.org/). We will again tidy the text, and we will learn how to implement **sentiment analysis**.
 
-The dataset is available for you to explore as a tibble called `shakespeare`, and there are three columns. 
+The data set is available for you to explore as a tibble called `shakespeare`, and there are three columns. 
 
 - The first column gives you the `title` of the play, such as _Much Ado about Nothing_.
 - The next gives you the `genre` of play, either tragedy or comedy.
@@ -410,7 +410,7 @@ shakespeare %>%
 ```
 
 ```{r count-genre-check}
-grade_code("There are six plays in this dataset, and we have slightly more total lines of text from the tragedies than from the comedies.")
+grade_code("There are six plays in this data set, and we have slightly more total lines of text from the tragedies than from the comedies.")
 ```
 
 ### To be, or not to be
@@ -433,7 +433,7 @@ grade_code(correct = "We have three comedies, and three tragedies.")
 
 ### Unnesting from text to word
 
-The `shakespeare` dataset is not yet compatible with tidy tools. You need to first break the text into individual tokens, like you learned in the first case study. There are **three** verbs to add to add to this analysis pipeline:
+The `shakespeare` data set is not yet compatible with tidy tools. You need to first break the text into individual tokens, like you learned in the first case study. There are **three** verbs to add to add to this analysis pipeline:
 
 - group by `title`, so that you can add a line number to count up the lines spoken in each play
 - tokenize and tidy the text using `unnest_tokens()`
@@ -494,13 +494,13 @@ question('Which of the following words is most unlikely to be found in a sentime
 
 ### Sentiment analysis via an `inner_join()`
 
-When text data is in a tidy data structure like we are working with in this tutorial, with **one word per row**, you can perform sentiment analysis using an inner join, like you may have worked with in SQL or in [dplyr](https://dplyr.tidyverse.org/). Remember that the sentiment lexicon you just saw is a data frame with one word per row. When your text data is also stored in that form, with one word per row, then the result of an inner join between those two datasets will give you all the words that are both in the text you are analyzing and the lexicon.
+When text data is in a tidy data structure like we are working with in this tutorial, with **one word per row**, you can perform sentiment analysis using an inner join, like you may have worked with in SQL or in [dplyr](https://dplyr.tidyverse.org/). Remember that the sentiment lexicon you just saw is a data frame with one word per row. When your text data is also stored in that form, with one word per row, then the result of an inner join between those two data sets will give you all the words that are both in the text you are analyzing and the lexicon.
 
 <div class = "row">
 
 <div class = "col-md-6">
 
-Let's say you have the following text dataset, available in your environment as `text`:
+Let's say you have the following text data set, available in your environment as `text`:
 
 ```{r}
 tibble(word = c("chocolate", "makes", "me", "happy",
@@ -520,7 +520,7 @@ tibble(word = c("happy", "sad", "chocolate", "broccoli"))
 </div>
 
 ```{r chocolate-quiz}
-question('Which word will be in the output of an inner join between this text dataset and this sentiment lexicon?',
+question('Which word will be in the output of an inner join between this text data set and this sentiment lexicon?',
          answer("movie"),
          answer("chocolate", correct = TRUE),
          answer("broccoli"),
@@ -528,7 +528,7 @@ question('Which word will be in the output of an inner join between this text da
          allow_retry = TRUE,
          random_answer_order = TRUE,
          incorrect = "Incorrect. This word will not be in the output of an inner join.",
-         correct = "Correct! The word \"chocolate\" is in both the text dataset and the lexicon."
+         correct = "Correct! The word \"chocolate\" is in both the text data set and the lexicon."
 )
 ```
 
@@ -536,7 +536,7 @@ Using tidy data principles for sentiment analysis is convenient not only for imp
 
 ### Sentiment analysis of Shakespeare 
 
-After transforming the text of these Shakespearean plays to a tidy text dataset in a previous exercise, the resulting data frame `tidy_shakespeare` is ready for sentiment analysis. Once you have performed the sentiment analysis, you can find out how many negative and positive words each play has with just one line of code.
+After transforming the text of these Shakespearean plays to a tidy text data set in a previous exercise, the resulting data frame `tidy_shakespeare` is ready for sentiment analysis. Once you have performed the sentiment analysis, you can find out how many negative and positive words each play has with just one line of code.
 
 - Use the correct kind of join to implement sentiment analysis.
 - Add the `"bing"` lexicon as the argument to the join function.
@@ -795,18 +795,18 @@ grade_code(correct = "These plots show how sentiment changes through these plays
 
 <iframe src="https://giphy.com/embed/7IW6Jnw29TYmgkuu3M" width="480" height="270" frameBorder="0" class="giphy-embed" allowFullScreen></iframe><p><a href="https://giphy.com/gifs/usnationalarchives-paper-newspaper-printing-press-7IW6Jnw29TYmgkuu3M">via GIPHY</a></p>
 
-You have already learned a lot in the first two case studies of this tutorial, from how to transform text to a tidy format and how to use sentiment lexicons. In this third case study, we will learn some new ways to analyze text, using a dataset of newspaper headlines. These particular headlines are from the *New York Times* during November 2020. 
+You have already learned a lot in the first two case studies of this tutorial, from how to transform text to a tidy format and how to use sentiment lexicons. In this third case study, we will learn some new ways to analyze text, using a data set of newspaper headlines. These particular headlines are from the *New York Times* during November 2020. 
 
 [![NYT](images/poweredby_nytimes_150a.png)](https://developer.nytimes.com/)
 
-The *New York Times* is a busy paper; there were over 5,000 headlines during this period! The dataset we'll be working with has two variables:
+The *New York Times* is a busy paper; there were over 5,000 headlines during this period! The data set we'll be working with has two variables:
 
 - `headline`, the text of the headline as published by the NYT
 - `section`, the main section of the paper that the article with this headline was published in
 
 Headlines are interesting for many reasons. One important one is that news organizations in general and the *New York Times* in particular have come under criticism for their practices in crafting headlines, from excessive use of passive voice when reporting killings by the police to how outright lies by politicians are handled in headlines. Text data is often fraught and complex, and that is certainly true for newspaper headlines!
 
-Use `count()` with `sort = TRUE` so you can see how many different values for `section` there are in this dataset from November 2020 and which had the most headlines.
+Use `count()` with `sort = TRUE` so you can see how many different values for `section` there are in this data set from November 2020 and which had the most headlines.
 
 ```{r count-section, exercise=TRUE, warning=FALSE, message=FALSE, error=FALSE}
 nyt_headlines %>%
@@ -819,12 +819,12 @@ nyt_headlines %>%
 ```
 
 ```{r count-section-check}
-grade_code("November 2020 was a busy month in the United States! The next most used categories in this dataset are headlines about world news and the opinion page.")
+grade_code("November 2020 was a busy month in the United States! The next most used categories in this data set are headlines about world news and the opinion page.")
 ```
 
 ### Tidying newspaper headlines
 
-This dataset contains over 5000 newspaper headlines, from November 2020. The headlines are all in one column, so they are not yet in a tidy format, ready for our tidy set of tools. It's time for you to tidy these headlines!
+This data set contains over 5000 newspaper headlines, from November 2020. The headlines are all in one column, so they are not yet in a tidy format, ready for our tidy set of tools. It's time for you to tidy these headlines!
 
 - Pipe the `nyt_headlines` object to the next line.
 - Use `unnest_tokens()` to tokenize and tidy the `headlines` column into a new `word` column.
@@ -852,12 +852,12 @@ tidy_nyt
 ```
 
 ```{r tidy-headlines-check}
-grade_code("This is the third time you have tidied a text dataset in this tutorial. Notice that you use whatever column name the text happens to be in. You also can give the output whatever name is most convenient for you; it does not necessarily have to be `word`.")
+grade_code("This is the third time you have tidied a text data set in this tutorial. Notice that you use whatever column name the text happens to be in. You also can give the output whatever name is most convenient for you; it does not necessarily have to be `word`.")
 ```
 
 ### Most common headline words
 
-What are the most common words in these headlines? Analyzing headlines is not quite like analyzing other kinds of text, but to be honest, that turns out to be true a lot of the time. Many text datasets have **specific characteristics** (document length, vocabulary, semantic patterns, etc) that make them stand out compared to other datasets, sometimes even when you look at just the most common words. 
+What are the most common words in these headlines? Analyzing headlines is not quite like analyzing other kinds of text, but to be honest, that turns out to be true a lot of the time. Many text data sets have **specific characteristics** (document length, vocabulary, semantic patterns, etc) that make them stand out compared to other data sets, sometimes even when you look at just the most common words. 
 
 - Use `count()` to tally up the words.
 - Set `sort = TRUE` to order by the count, instead of alphabetically.
@@ -873,7 +873,7 @@ tidy_nyt %>%
 ```
 
 ```{r top-nyt-check}
-grade_code(correct = "The word \"election\" is used more in this dataset than the word \"and\"! This is pretty wild.")
+grade_code(correct = "The word \"election\" is used more in this data set than the word \"and\"! This is pretty wild.")
 ```
 
 ### Removing stop words
@@ -910,7 +910,7 @@ Let's look at this in the context of the NYT headlines.
   - The first is the token or term, `word`, and the second is the document, the headline `id`.
   - The last argument is the column that contains the document-term counts, which is `n`, the output of `count()`.
 
-Because of the line `arrange(-tf_idf)`, the output shows the _highest_ tf-idf words in the whole dataset of headlines, the most distinctive words found.
+Because of the line `arrange(-tf_idf)`, the output shows the _highest_ tf-idf words in the whole data set of headlines, the most distinctive words found.
 
 ```{r nyt-tf-idf, exercise=TRUE, warning=FALSE, message=FALSE, error=FALSE}
 nyt_tf_idf <- tidy_nyt %>%
@@ -935,7 +935,7 @@ nyt_tf_idf
 ```
 
 ```{r nyt-tf-idf-check}
-grade_code(correct = "The highest tf-idf words also have both `n` and term frequency equal to 1, meaning that these were headlines that only had a single word in them. Not all the headlines in this dataset are what we would think of as traditional headlines.")
+grade_code(correct = "The highest tf-idf words also have both `n` and term frequency equal to 1, meaning that these were headlines that only had a single word in them. Not all the headlines in this data set are what we would think of as traditional headlines.")
 ```
 
 
@@ -997,7 +997,7 @@ grade_code(correct = "Words about IPOs were more characteristic of the technolog
 
 ### Tokenize headlines to bigrams
 
-We've focused on single word (unigrams) in this case study so far, but you can compute tf-idf for lots of different kinds of things, including higher order n-grams, like bigrams. Let's go back to our original dataset of headlines and tokenize again, this time to bigrams, so that we can find the most distinctive **bigrams** for different sections of the paper in November 2020.
+We've focused on single word (unigrams) in this case study so far, but you can compute tf-idf for lots of different kinds of things, including higher order n-grams, like bigrams. Let's go back to our original data set of headlines and tokenize again, this time to bigrams, so that we can find the most distinctive **bigrams** for different sections of the paper in November 2020.
 
 - We use the same function for tokenizing and tidying text to bigrams that we have for other tokenization through this tutorial.
 - The last argument specifies what order n-grams to create, `n = 2`.
@@ -1118,9 +1118,9 @@ grade_code(correct = "Remember that we computed tf-idf per **headline** and did 
 
 <iframe src="https://giphy.com/embed/KeoXXlp8DwhdHfZLr6" width="480" height="382" frameBorder="0" class="giphy-embed" allowFullScreen></iframe><p><a href="https://giphy.com/gifs/edsullivanshow-girl-all-i-need-the-temptations-KeoXXlp8DwhdHfZLr6">via GIPHY</a></p>
 
-You have made it to your final case study of this tutorial! This case study demonstrates again how these kinds of techniques are applicable for many diverse kinds of texts. You have analyzed TED talks, Shakespeare's plays, *New York Times* headlines, and now, in this final case study, you are going to use your text mining and sentiment analysis skills on a dataset of **lyrics from pop songs over 50 years**. All these texts are very different each other, but you are able to gain insight in each case because this approach is flexible and powerful.
+You have made it to your final case study of this tutorial! This case study demonstrates again how these kinds of techniques are applicable for many diverse kinds of texts. You have analyzed TED talks, Shakespeare's plays, *New York Times* headlines, and now, in this final case study, you are going to use your text mining and sentiment analysis skills on a data set of **lyrics from pop songs over 50 years**. All these texts are very different each other, but you are able to gain insight in each case because this approach is flexible and powerful.
 
-This dataset was created by [Kaylin Pavlik](https://github.com/walkerkq/musiclyrics), who published [her own analysis of these song lyrics](https://www.kaylinpavlik.com/50-years-of-pop-music/). The dataset consists of songs that were listed on Billboard's Year-End Hot 100 over five decades. You'll have a dataset available called `song_lyrics`, with variables:
+This data set was created by [Kaylin Pavlik](https://github.com/walkerkq/musiclyrics), who published [her own analysis of these song lyrics](https://www.kaylinpavlik.com/50-years-of-pop-music/). The data set consists of songs that were listed on Billboard's Year-End Hot 100 over five decades. You'll have a data set available called `song_lyrics`, with variables:
 
 - `rank`, the rank a song achieved on the Billboard Year-End Hot 100
 - `song`, the song's title
@@ -1131,7 +1131,7 @@ This dataset was created by [Kaylin Pavlik](https://github.com/walkerkq/musiclyr
 
 ### Tidying song lyrics
 
-This dataset contains over 5000 songs, from 1965 to 2015. The lyrics are all in one column, so they are not yet in a tidy format, ready for analysis using tidy tools. It's your turn to tidy this text data!
+This data set contains over 5000 songs, from 1965 to 2015. The lyrics are all in one column, so they are not yet in a tidy format, ready for analysis using tidy tools. It's your turn to tidy this text data!
 
 - Pipe the `song_lyrics` object to the next line.
 - Use `unnest_tokens()` to tokenize and tidy the `lyrics` column into a new `word` column.
@@ -1162,7 +1162,7 @@ grade_code()
 
 ### Most common words in pop songs
 
-What are the **most common words** in these song lyrics? In her project, [Kaylin Pavlik](https://www.kaylinpavlik.com/50-years-of-pop-music/) made a word cloud of most common words, but she must have removed some stop words. We are used to seeing pretty uninformative examples when we look at the very top words, but are there differences compared to the other datasets we have used?
+What are the **most common words** in these song lyrics? In her project, [Kaylin Pavlik](https://www.kaylinpavlik.com/50-years-of-pop-music/) made a word cloud of most common words, but she must have removed some stop words. We are used to seeing pretty uninformative examples when we look at the very top words, but are there differences compared to the other data sets we have used?
 
 - Use `count()` to tally up the words.
 - Set `sort = TRUE` to order by the count, instead of alphabetically.
@@ -1178,7 +1178,7 @@ tidy_lyrics %>%
 ```
 
 ```{r top-lyrics-check}
-grade_code(correct = "This dataset is made up of somewhat different words than the other bodies of language we've looked in this tutorial. We see words like \"you\" and \"I\" with the very highest frequencies, and \"me\" and \"my\" also quite high; this is unique compared to most kinds of text.")
+grade_code(correct = "This data set is made up of somewhat different words than the other bodies of language we've looked in this tutorial. We see words like \"you\" and \"I\" with the very highest frequencies, and \"me\" and \"my\" also quite high; this is unique compared to most kinds of text.")
 ```
 
 ### Words per song
@@ -1264,12 +1264,12 @@ We could use any of the text analysis techniques we have explored so far in our 
 
 ***NOTE:*** *If you haven't read that chapter before, you may want to skim it before finishing this case study.* 
 
-We'll create our linear models in several steps. First, let's create a dataset of `word_counts`.
+We'll create our linear models in several steps. First, let's create a data set of `word_counts`.
 
 - Start by counting to find the number of words used in each `song` each `year` (use two arguments).
 - Next, group by year and create a column via `mutate()` for the total words used each year.
 - After ungrouping, group by word.
-- Use `filter()` to keep only words used above a threshold, of 500 total uses in the dataset. (We don't want to try to train models on words used only a handful of times.)
+- Use `filter()` to keep only words used above a threshold, of 500 total uses in the data set. (We don't want to try to train models on words used only a handful of times.)
 
 ```{r lyric-word-counts, exercise=TRUE, warning=FALSE, message=FALSE, error=FALSE}
 word_counts <- tidy_lyrics %>% 
@@ -1313,7 +1313,7 @@ grade_code(correct = "Now you have the total number of uses of each word in each
 
 ### Many models
 
-Now we can use the new `word_counts` dataset to train many linear models, **one per word**. We will load the [broom](https://broom.tidymodels.org/) package to handle the model output.
+Now we can use the new `word_counts` data set to train many linear models, **one per word**. We will load the [broom](https://broom.tidymodels.org/) package to handle the model output.
 
 - Create list-columns by nesting the word count data, nesting by `word`.
 - Use `mutate()` to create a new column for our models. We are training one model for each word, with `year` as the predictor. 
@@ -1385,7 +1385,7 @@ slopes
 ```
 
 ```{r many-models-check}
-grade_code(correct = "This is some pretty hefty statistics you are doing now; you have trained one generalized linear model for each word in our dataset. These models ask the question, \"Is this word changing in usage over time?\"")
+grade_code(correct = "This is some pretty hefty statistics you are doing now; you have trained one generalized linear model for each word in our data set. These models ask the question, \"Is this word changing in usage over time?\"")
 ```
 
 ### Visualizing many models

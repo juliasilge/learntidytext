@@ -142,7 +142,7 @@ grade_code()
 
 The `text` data is currently in a dataframe, but it is not **tidy** in the sense of being compatible with tidy tools. We need to transform it so that it is in a different format, with **one observation per row**.
 
-When we do text analysis, the observations we are interested in aren't the whole talks at once, but rather individual _tokens_. A **token** is a meaningful unit of text for analysis; in many cases, this just means a single word. THe process of **tokenization** identifies and breaks apart text into individual tokens. You can use [tidytext’s `unnest_tokens()` function](https://juliasilge.github.io/tidytext/reference/unnest_tokens.html) to accomplish all of this at once, both the tidying and the tokenization.
+When we do text analysis, the observations we are interested in aren't the whole talks at once, but rather individual _tokens_. A **token** is a meaningful unit of text for analysis; in many cases, this just means a single word. The process of **tokenization** identifies and breaks apart text into individual tokens. You can use [tidytext’s `unnest_tokens()` function](https://juliasilge.github.io/tidytext/reference/unnest_tokens.html) to accomplish all of this at once, both the tidying and the tokenization.
 
 ```{r tidy-talks, exercise=TRUE}
 tidy_talks <- ted_talks %>% 

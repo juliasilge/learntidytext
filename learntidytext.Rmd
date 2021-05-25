@@ -3,7 +3,6 @@ title: "Text mining with tidy data principles"
 author: "Julia Silge"
 output: 
   learnr::tutorial:
-    css: css/custom_css.css
     allow_skip: true
 runtime: shiny_prerendered
 description: "Learn how to use tidytext!"
@@ -13,6 +12,9 @@ description: "Learn how to use tidytext!"
 @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono&family=Open+Sans+Condensed&family=Opens+Sans:wght@300;400&display=swap');
 </style> 
 
+```{r custom-css, echo=FALSE}
+shiny::includeCSS("css/custom_css.css")
+```
 
 ```{r setup, include=FALSE}
 library(learnr)

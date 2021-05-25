@@ -905,7 +905,7 @@ A central question in text mining is how to quantify what different documents or
 $$idf(\text{term}) = \ln{\left(\frac{n_{\text{documents}}}{n_{\text{documents containing term}}}\right)}$$
 If you multiply the two together, you get tf-idf, a statistic intended to measure how important a word is to a document in a collection (or corpus) of documents. The [`bind_tf_idf()` function from tidytext](https://juliasilge.github.io/tidytext/reference/bind_tf_idf.html) can compute tf-idf for a text data in a tidy format.
 
-Let's look at this in the context of the NYT headlines.
+Let's look at this in the context of the NYT headlines. In our case study here, each headline is a document, and the corpus is the whole month of headlines.
 
 - Start by counting up the words in the `tidy_nyt` data, using three arguments: `section` (to keep track of the newspaper sections), `id` for each headline, and `word`.
 - Specify the appropriate three arguments for `bind_tf_idf()`:
@@ -943,7 +943,7 @@ grade_code(correct = "The highest tf-idf words also have both `n` and term frequ
 
 ### Visualize tf-idf
 
-Let's use visualization to understand the high tf-idf words better. Let's connect the highest tf-idf words to the **sections** of the newspaper and look at the top 10 highest tf-idf headline words for four different newspaper sections. 
+Let's use visualization to understand the high tf-idf words better. Let's connect the highest tf-idf words for each headline to the **sections** of the newspaper and look at the top 10 highest tf-idf headline words for four different newspaper sections. 
 
 The following code looks at the food, opinion, and technology sections, along with [The Upshot](https://www.nytimes.com/section/upshot). 
 

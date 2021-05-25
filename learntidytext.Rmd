@@ -827,7 +827,7 @@ grade_code("November 2020 was a busy month in the United States! The next most u
 This data set contains over 5000 newspaper headlines, from November 2020. The headlines are all in one column, so they are not yet in a tidy format, ready for our tidy set of tools. It's time for you to tidy these headlines!
 
 - Pipe the `nyt_headlines` object to the next line.
-- Use `unnest_tokens()` to tokenize and tidy the `headlines` column into a new `word` column.
+- Use `unnest_tokens()` to tokenize and tidy the `headline` column into a new `word` column.
 
 We also have added a headline `id` column via `mutate()` so we can keep track of which word belongs to which headline.
 
